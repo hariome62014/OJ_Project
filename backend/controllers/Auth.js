@@ -125,6 +125,8 @@ exports.login = async (req, res) => {
     // Find user with provided email
     const user = await User.findOne({ email });
 
+    console.log("UserDetails",user);
+
 
     // If user not found with provided email
     if (!user) {
@@ -141,7 +143,7 @@ exports.login = async (req, res) => {
     // Generate JWT token and Compare Password
     if (await bcrypt.compare(password, user. passwordHash)) {
       const token = jwt.sign(
-        { email: user.email, id: user._id, accountType: user.accountType },
+        { email: user.email, id: user._id, role: user.role },
         process.env.JWT_SECRET,
         {
           expiresIn: "24h",

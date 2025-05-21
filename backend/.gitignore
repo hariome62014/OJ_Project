@@ -1,12 +1,30 @@
-# Node modules
-backend/node_modules/
+# Node modules (anywhere in the project)
+**/node_modules/
 
 # Environment files
-backend/.env
+.env
+*.env
 
 # Logs
 *.log
+logs/
 
-# OS-specific
+# OS-specific files
 .DS_Store
 Thumbs.db
+
+# IDE & Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Dependency directories
+jspm_packages/
+bower_components/
+
+# Build & cache folders
+dist/
+build/
+.cache/
+*.tmp
