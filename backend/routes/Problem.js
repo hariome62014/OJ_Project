@@ -8,7 +8,7 @@ const {createProblem, getAllProblems, getProblemById, updateProblem, deleteProbl
 router.post('/create-problem',auth,isAdmin,createProblem)
 router.post('/problem-list',getAllProblems)
 router.get('/:problemId',getProblemById)
-router.post('/:problemId/update',auth, isAdmin, updateProblem)
+router.put('/:problemId/update',auth, isAdmin, updateProblem)
 router.get('/:problemId/delete',auth,isAdmin,deleteProblem)
 
 

@@ -12,4 +12,4 @@ router.post('/:testcaseID/update',auth,isAdmin,updateTestCase)
 router.get('/:testCaseId/delete',auth,isAdmin,deleteTestCase)
 router.get('/delete-all-testcases',auth,isAdmin,deleteAllTestCases)
 
-module.exports = router
+module.exports = router 

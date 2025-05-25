@@ -1,0 +1,50 @@
+@import "tailwindcss";
+
+/* Heatmap color scale - light mode */
+.react-calendar-heatmap .color-empty {
+  fill: #ebedf0;
+}
+.react-calendar-heatmap .color-scale-1 {
+  fill: #9be9a8;
+}
+.react-calendar-heatmap .color-scale-2 {
+  fill: #40c463;
+}
+.react-calendar-heatmap .color-scale-3 {
+  fill: #30a14e;
+}
+.react-calendar-heatmap .color-scale-4 {
+  fill: #216e39;
+}
+
+/* Dark mode heatmap colors */
+.dark .react-calendar-heatmap .color-empty {
+  fill: #2d3748;
+}
+.dark .react-calendar-heatmap .color-scale-1 {
+  fill: #4c7a5d;
+}
+.dark .react-calendar-heatmap .color-scale-2 {
+  fill: #3a6650;
+}
+.dark .react-calendar-heatmap .color-scale-3 {
+  fill: #2d5c45;
+}
+.dark .react-calendar-heatmap .color-scale-4 {
+  fill: #1e4a34;
+}
+
+
+/* For react-select dropdown menu positioning */
+.select__menu {
+  z-index: 1000 !important;
+}
+
+/* For the dropdown indicator color */
+.select__dropdown-indicator {
+  color: #6B7280 !important;
+}
+
+.select__dropdown-indicator:hover {
+  color: #4B5563 !important;
+}

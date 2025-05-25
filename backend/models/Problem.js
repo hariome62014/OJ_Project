@@ -9,14 +9,11 @@ const problemSchema = new Schema(
       type: String,
       required: [true, 'Title is required'],
       trim: true,
-      minlength: [5, 'Title must be at least 5 characters'],
-      maxlength: [100, 'Title cannot exceed 100 characters'],
       unique: true
     },
     description: {
       type: String,
       required: [true, 'Description is required'],
-      minlength: [20, 'Description must be at least 20 characters']
     },
     difficulty: {
       type: String,
@@ -39,23 +36,11 @@ const problemSchema = new Schema(
     },
     timeLimit: {
       type: Number,
-      required: [true, 'Time limit is required'],
-      min: [0.1, 'Time limit must be at least 0.1 seconds'],
-      max: [10, 'Time limit cannot exceed 10 seconds']
+      required: [true, 'Time limit is required']
     },
     memoryLimit: {
       type: Number,
-      required: [true, 'Memory limit is required'],
-      min: [1, 'Memory limit must be at least 1MB'],
-      max: [512, 'Memory limit cannot exceed 512MB']
-    },
-    inputFormat: {
-      type: String,
-      required: [true, 'Input format description is required']
-    },
-    outputFormat: {
-      type: String,
-      required: [true, 'Output format description is required']
+      required: [true, 'Memory limit is required']
     },
     samples: {
       type: [{

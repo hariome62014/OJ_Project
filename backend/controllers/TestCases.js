@@ -53,30 +53,55 @@ const upload = multer({
 // CRUD Operations
 module.exports = {
   // Create single test case
- createTestCase : async (req, res, next) => {
+createTestCase: async (req, res, next) => {
   try {
+    console.log("Reached createTestCase");
+    console.log("req.body", req.body);
     const { problemId } = req.params;
-    const {input, expectedOutput}  = req.body;
+    const testCases = req.body;
 
-    console.log("Input",input);
+    // Check if testCases is an array and not empty
+    if (!Array.isArray(testCases)) {
+      return res.status(400).json({ error: 'Request body must be an array of test cases' });
+    }
+
+    if (testCases.length === 0) {
+      return res.status(400).json({ error: 'At least one test case is required' });
+    }
+
+    // Validate each test case in the array
+    for (const testCase of testCases) {
+      if (!testCase.input || !testCase.expectedOutput) {
+        return res.status(400).json({ 
+          error: 'Each test case must have both input and expectedOutput',
+          invalidTestCase: testCase
+        });
+      }
+    }
+
     const problem = await Problem.findById(problemId);
-
     if (!problem) {
       return res.status(404).json({ error: 'Problem not found' });
     }
 
-    // First create the test case
-    const testCase = await TestCase.create({
-      problemId,
-      ...req.body
-    });
+    // Create all test cases
+    const createdTestCases = await TestCase.insertMany(
+      testCases.map(testCase => ({
+        problemId,
+        input: testCase.input,
+        expectedOutput: testCase.expectedOutput
+      }))
+    );
 
-    // Then add the test case to the problem
-    await problem.addTestCase(testCase._id);
+    // Add each test case to the problem one by one
+    for (const testCase of createdTestCases) {
+      await problem.addTestCase(testCase._id);
+    }
 
     res.status(201).json({
       success: true,
-      testCase
+      count: createdTestCases.length,
+      testCases: createdTestCases
     });
   } catch (err) {
     next(err);

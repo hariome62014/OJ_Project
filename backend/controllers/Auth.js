@@ -17,7 +17,6 @@ exports.signup = async (req, res) => {
       email,
       password,
       confirmPassword,
-      accountType,
       otp,
     } = req.body;
     // Check if All Details are there or not
@@ -87,7 +86,6 @@ exports.signup = async (req, res) => {
       email,
       // contactNumber,
       passwordHash: hashedPassword,
-      accountType: accountType,
       // approved: approved,
       // additionalDetails: profileDetails._id,
       image: `https://api.dicebear.com/6.x/initials/svg?seed=${username} &backgroundColor=00897b,00acc1,039be5,1e88e5,3949ab,43a047,5e35b1,7cb342,8e24aa,c0ca33,d81b60,e53935,f4511e,fb8c00,fdd835,ffb300,ffd5dc,ffdfbf,c0aede,d1d4f9,b6e3f4&backgroundType=solid,gradientLinear&backgroundRotation=0,360,-350,-340,-330,-320&fontFamily=Arial&fontWeight=600`,
@@ -110,6 +108,7 @@ exports.signup = async (req, res) => {
 // Login controller for authenticating users
 exports.login = async (req, res) => {
   try {
+    console.log("Reached login controller")
     // Get email and password from request body
     const { email, password } = req.body;
 
@@ -185,6 +184,8 @@ exports.login = async (req, res) => {
 // Send OTP For Email Verification
 exports.sendotp = async (req, res) => {
   try {
+
+    console.log("Reached Sendotp controller")
     const { email } = req.body;
 
     // Check if user is already present
