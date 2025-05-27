@@ -51,6 +51,8 @@ exports.createProblem = async (req, res, next) => {
       createdBy: req.user.id
     };
 
+    console.log("Problem Data recieved:",problemData)
+
     // Validate test cases structure if provided
     // if (problemData.testCases) {
     //   if (!Array.isArray(problemData.testCases)) {

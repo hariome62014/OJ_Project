@@ -42,6 +42,14 @@ const problemSchema = new Schema(
       type: Number,
       required: [true, 'Memory limit is required']
     },
+    inputFormat: {
+      type: String,
+      required: [true, 'Input format description is required']
+    },
+    outputFormat: {
+      type: String,
+      required: [true, 'Output format description is required']
+    },
     samples: {
       type: [{
         input: {

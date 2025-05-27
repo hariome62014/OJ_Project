@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Link, NavLink, useNavigate } from 'react-router-dom';
+import { Link, NavLink, useNavigate, useParams,useLocation } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { logout } from '../../../services/operations/AuthAPI';
 import { toggleTheme } from '../../slices/ThemeSlice';
@@ -90,6 +90,24 @@ const cancelLogout = () => {
       setAuthDropdownOpen(false);
     }
   };
+
+const problem = useSelector((state)=>state.problem);
+console.log("Problem on NavBar",problem)
+const problemId = problem.problem._id;
+const location = useLocation();
+
+const hiddenPaths = [
+  `/problems/${problemId}`, // Exact match for this problem
+   // If you want to hide for all problem pages
+];
+
+// Check if current path is in hiddenPaths
+const shouldHideFooter = hiddenPaths.some(path => 
+  location.pathname === path || 
+  location.pathname.startsWith(path + '/')
+);
+
+if (shouldHideFooter) return null;
 
   return (
     <header className={`

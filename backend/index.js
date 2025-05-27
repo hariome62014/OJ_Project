@@ -6,6 +6,7 @@ const bodyParser = require('body-parser');
 const userRoutes =  require('./routes/User')
 const problemRoutes = require('./routes/Problem')
 const testcasesRoutes = require('./routes/TestCases')
+const submissionRoutes  = require('./routes/Submission')
 const cors = require("cors");
 
 
@@ -35,6 +36,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/api/v1/auth',userRoutes)
 app.use('/api/v1/problems',problemRoutes)
 app.use('/api/v1/problems/:problemId/test-cases', testcasesRoutes);
+app.use('/api/v1/problems/:problemId/submission',submissionRoutes)
 
 connectDB();
 

@@ -13,7 +13,8 @@ const Footer = () => {
     '/register',
     '/forgot-password',
     '/reset-password',
-    '/verify-otp'
+    '/verify-otp',
+    '/problems/:problemId'
   ];
 
   // Check if current path should hide footer
@@ -25,7 +26,7 @@ const Footer = () => {
     <footer className={`
       ${darkMode ? 'bg-gray-900 text-gray-300' : 'bg-white text-gray-700'}
       border-t ${darkMode ? 'border-gray-700' : 'border-gray-200'}
-      transition-colors duration-300
+      transition-colors duration-300 mt-16
     `}>
       <div className="container mx-auto px-4 py-8">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">

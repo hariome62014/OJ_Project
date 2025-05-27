@@ -27,10 +27,15 @@ export const problemEndpoints = {
   CREATE_PROBLEM_API : BASE_URL+ "/problems/create-problem",
   FETCH_PROBLEM_LIST_API: BASE_URL + "/problems/problem-list",
   UPDATE_PROBLEM_API:BASE_URL + "/problems/:problemId/update",
-  DELETE_PROBLEM_BASE_URL : BASE_URL+'/problems'
+  DELETE_PROBLEM_BASE_URL : BASE_URL+'/problems',
+  FETCH_PROBLEM_BY_ID_API:BASE_URL+'/problems'
 }
 
 export const testCasesEndpoint = {
 
   ADD_TESTCASES_BASE_URL : BASE_URL +"/problems"
+}
+
+export const submissionEndpoint = {
+  SUBMIT_SOLUTION_BASE_URL:BASE_URL + '/problems'
 }

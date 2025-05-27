@@ -22,17 +22,17 @@ import TestCaseModal from '../modals/TestCaseModal';
 import ProblemFormModal from '../modals/ProblemFormModal';
 import { ConfirmationModal } from '../modals/ConfirmationModal';
 
-const AdminProblemsPage = () => {
+const AdminPage = () => {
   const darkMode = useSelector((state) => state.theme.darkMode);
   const dispatch = useDispatch();
   const { 
-    problems, 
+    problem, 
     loading,
     error, 
     pagination 
   } = useSelector((state) => state.problem);
 
-  console.log("Problem on Admin Dashboard",problems[0])
+  console.log("Problem on Admin Dashboard",problem[0])
   
   const [searchTerm, setSearchTerm] = useState('');
   const [filters, setFilters] = useState({
@@ -64,6 +64,8 @@ const AdminProblemsPage = () => {
       id: problem._id,
       title: problem.title,
       description: problem.description,
+      inputFormat:problem.inputFormat,
+      outputFormat:problem.outputFormat,
       constraints:problem.constraints,
       samples:problem.samples,
       difficulty: problem.difficulty.charAt(0).toLowerCase() + problem.difficulty.slice(1),
@@ -75,7 +77,7 @@ const AdminProblemsPage = () => {
     };
   };
 
-  const filteredProblems = problems
+  const filteredProblems = problem
     .map(transformProblemData)
     .filter(problem => {
       const matchesSearch = problem.title.toLowerCase().includes(searchTerm.toLowerCase());
@@ -157,7 +159,7 @@ const AdminProblemsPage = () => {
   
 
   const openTestCaseModal = (problem) => {
-    console.log("Hello Reached openTestCaseModal")
+    console.log("Hello Reached openTestCaseModal",problem)
     setSelectedProblem(problem);
     setIsTestCaseModalOpen(true);
     console.log("SelectedProblem::::",selectedProblem)
@@ -169,12 +171,12 @@ const AdminProblemsPage = () => {
     setIsProblemModalOpen(true);
   };
 
-  if (loading === 'loading' && !problems.length) {
+  if (loading === 'loading' && !problem.length) {
     return (
       <div className={`min-h-screen ${darkMode ? 'bg-gray-900 text-gray-100' : 'bg-gray-50 text-gray-900'} mt-16 flex items-center justify-center`}>
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
-          <p className="mt-4">Loading problems...</p>
+          <p className="mt-4">Loading ...</p>
         </div>
       </div>
     );
@@ -186,7 +188,7 @@ const AdminProblemsPage = () => {
         <div className="text-center">
           <p className="text-red-500">Error: {error}</p>
           <button 
-            onClick={() => dispatch(fetchProblems({
+            onClick={() => dispatch(fetch({
               page: 1,
               limit: pagination.pageSize || 10
             }))}
@@ -212,9 +214,9 @@ const AdminProblemsPage = () => {
             className="flex justify-between items-center"
           >
             <div>
-              <h1 className="text-2xl md:text-3xl font-bold">Problems Management</h1>
+              <h1 className="text-2xl md:text-3xl font-bold"> Management</h1>
               <p className={`text-sm md:text-base ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-                Manage coding problems and test cases
+                Manage coding  and test cases
               </p>
             </div>
             <Link
@@ -329,7 +331,7 @@ const AdminProblemsPage = () => {
             </motion.div>
           )}
 
-          {/* Problems List */}
+          {/*  List */}
           <div className="flex-1">
             {/* Search Bar - Desktop */}
             <div className="hidden md:block mb-6">
@@ -339,7 +341,7 @@ const AdminProblemsPage = () => {
                 </div>
                 <input
                   type="text"
-                  placeholder="Search problems..."
+                  placeholder="Search ..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className={`block w-full pl-10 pr-3 py-2 rounded-lg border ${darkMode ? 'bg-gray-700 border-gray-600' : 'bg-white border-gray-300'}`}
@@ -347,7 +349,7 @@ const AdminProblemsPage = () => {
               </div>
             </div>
 
-            {/* Problems Table */}
+            {/*  Table */}
             <motion.div 
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -460,7 +462,7 @@ const AdminProblemsPage = () => {
                     ) : (
                       <tr>
                         <td colSpan="5" className="px-6 py-4 text-center">
-                          No problems found matching your criteria
+                          No  found matching your criteria
                         </td>
                       </tr>
                     )}
@@ -476,7 +478,7 @@ const AdminProblemsPage = () => {
                   <span className="text-sm">
                     Showing {(pagination.currentPage - 1) * pagination.pageSize + 1} to{' '}
                     {Math.min(pagination.currentPage * pagination.pageSize, pagination.totalItems)} of{' '}
-                    {pagination.totalItems} problems
+                    {pagination.totalItems} 
                   </span>
                 </div>
                 
@@ -575,7 +577,7 @@ const AdminProblemsPage = () => {
           onClose={() => setIsProblemModalOpen(false)}
           darkMode={darkMode}
           onSuccess={() => {
-            dispatch(fetchProblems({
+            dispatch(fetch({
               page: pagination.currentPage,
               limit: pagination.pageSize
             }));
@@ -586,4 +588,4 @@ const AdminProblemsPage = () => {
   );
 };
 
-export default AdminProblemsPage;
+export default AdminPage;

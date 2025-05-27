@@ -1,7 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
-  problems: [],
+  problem: [],
   loading: false,
   error: null,
   pagination: {
@@ -24,7 +24,7 @@ const problemSlice = createSlice({
       state.loading = action.payload;
     },
     setProblems: (state, action) => {
-      state.problems = action.payload;
+      state.problem = action.payload;
       state.error = null;
     },
     setPagination: (state, action) => {

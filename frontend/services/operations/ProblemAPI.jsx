@@ -6,7 +6,12 @@ import { setLoading, setProblems,setPagination, setError } from '../../src/slice
 import  {problemEndpoints} from '../apis' // Your API endpoint
 
 
-const {FETCH_PROBLEM_LIST_API,CREATE_PROBLEM_API,DELETE_PROBLEM_BASE_URL,UPDATE_PROBLEM_API}  = problemEndpoints
+const {
+  FETCH_PROBLEM_LIST_API,
+  CREATE_PROBLEM_API,
+  DELETE_PROBLEM_BASE_URL,
+  UPDATE_PROBLEM_API
+,FETCH_PROBLEM_BY_ID_API}  = problemEndpoints
 
 export function fetchProblems(page = 1, limit = 10, filters = {}) {
   return async (dispatch) => {
@@ -43,6 +48,49 @@ export function fetchProblems(page = 1, limit = 10, filters = {}) {
       console.log("FETCH PROBLEMS API ERROR............", error);
       dispatch(setError(error.response?.data?.message || error.message || "Failed to fetch problems"));
       toast.error(error.response?.data?.message || "Failed to load problems");
+    } finally {
+      dispatch(setLoading(false));
+      toast.dismiss(toastId);
+    }
+  };
+}
+
+export function fetchProblemById(problemId) {
+  return async (dispatch) => {
+    const toastId = toast.loading("Loading problem details...");
+    dispatch(setLoading(true));
+
+    try {
+      
+      const response = await apiConnector(
+        "GET",
+        `${FETCH_PROBLEM_BY_ID_API}/${problemId}`,
+        null,
+        null,
+        null 
+      );
+
+      console.log("FETCH PROBLEM BY ID API RESPONSE............", response);
+
+      if (!response.data.success) {
+        throw new Error(response.data.message);
+      }
+
+      const problem = response.data.data;
+      dispatch(setProblems(problem)); // Assuming you have a setProblem action
+      // toast.success("Problem loaded successfully");
+    } catch (error) {
+      console.log("FETCH PROBLEM BY ID API ERROR............", error);
+      dispatch(
+        setError(
+          error.response?.data?.message ||
+            error.message ||
+            "Failed to fetch problem details"
+        )
+      );
+      toast.error(
+        error.response?.data?.message || "Failed to load problem details"
+      );
     } finally {
       dispatch(setLoading(false));
       toast.dismiss(toastId);

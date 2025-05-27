@@ -6,8 +6,6 @@ import { updateProblem } from '../../../services/operations/ProblemAPI';
 import toast from 'react-hot-toast';
 import { useDispatch, useSelector } from 'react-redux';
 
-
-
 const ProblemFormModal = ({ 
   problem = null, 
   onClose, 
@@ -15,13 +13,15 @@ const ProblemFormModal = ({
   onSave,
   isLoading 
 }) => {
-    console.log("Problem On Modal",problem)
+  console.log("Problem On Modal", problem)
   const [formData, setFormData] = useState({
     title: problem?.title || '',
     description: problem?.description || '',
+    inputFormat: problem?.inputFormat || '',
+    outputFormat: problem?.outputFormat || '',
     difficulty: problem?.difficulty || 'medium',
     tags: problem?.tags || [],
-    samples: problem?.samples?.length ? problem.samples : [{ input: '', output: '', explanation: '' }],
+    samples: problem?.samples?.length ? [...problem.samples] : [{ input: '', output: '', explanation: '' }],
     constraints: problem?.constraints || '',
     isPublished: problem?.isPublished || false
   });
@@ -66,12 +66,17 @@ const ProblemFormModal = ({
   };
 
   const handleSampleChange = (index, field, value) => {
-    const newSamples = [...formData.samples];
-    newSamples[index][field] = value;
-    setFormData(prev => ({
-      ...prev,
-      samples: newSamples
-    }));
+    setFormData(prev => {
+      const newSamples = [...prev.samples];
+      newSamples[index] = {
+        ...newSamples[index],
+        [field]: value
+      };
+      return {
+        ...prev,
+        samples: newSamples
+      };
+    });
   };
 
   const addNewSample = () => {
@@ -82,11 +87,9 @@ const ProblemFormModal = ({
   };
 
   const removeSample = (index) => {
-    const newSamples = [...formData.samples];
-    newSamples.splice(index, 1);
     setFormData(prev => ({
       ...prev,
-      samples: newSamples
+      samples: prev.samples.filter((_, i) => i !== index)
     }));
   };
 
@@ -95,6 +98,8 @@ const ProblemFormModal = ({
     
     if (!formData.title.trim()) newErrors.title = 'Title is required';
     if (!formData.description.trim()) newErrors.description = 'Description is required';
+    if (!formData.inputFormat.trim()) newErrors.inputFormat = 'Input format is required';
+    if (!formData.outputFormat.trim()) newErrors.outputFormat = 'Output format is required';
     if (formData.tags.length === 0) newErrors.tags = 'At least one tag is required';
     
     const sampleErrors = [];
@@ -108,30 +113,28 @@ const ProblemFormModal = ({
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
-const token = useSelector((state)=>state.auth.token)
-  const handleSubmit = async (e) => {
-  e.preventDefault();
-  
-  if (!validateForm()) return;
 
-  try {
-    // console.log("problemIdModal",problem.id)
-    const result = await dispatch(updateProblem( problem.id,formData, token));
+  const token = useSelector((state) => state.auth.token);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
     
-    if (result?.error) {
-      // Error is already handled in the thunk, no need to show again
-      return;
+    if (!validateForm()) return;
+
+    try {
+      const result = await dispatch(updateProblem(problem.id, formData, token));
+      
+      if (result?.error) {
+        return;
+      }
+      
+      toast.success("Problem updated successfully!");
+      onSave && onSave(result); // Call the onSave callback if provided
+    } catch (err) {
+      console.error("Update failed:", err);
+      toast.error(err.message || "Problem update failed");
     }
-    
-    // Handle successful update if needed
-    toast.success("Problem updated successfully!");
-    // You might want to redirect or reset form here
-  } catch (err) {
-    console.error("Update failed:", err);
-    // This will catch any unexpected errors not handled by the thunk
-    toast.error(err.message || "Problem update failed");
-  }
-};
+  };
 
   const customStyles = {
     control: (provided, state) => ({
@@ -247,6 +250,34 @@ const token = useSelector((state)=>state.auth.token)
                 {errors.description && <p className="mt-1 text-sm text-red-500">{errors.description}</p>}
               </div>
 
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-medium mb-2">Input Format<span className="text-red-500">*</span></label>
+                  <textarea
+                    name="inputFormat"
+                    value={formData.inputFormat}
+                    onChange={handleChange}
+                    rows={4}
+                    className={`w-full px-4 py-3 rounded-lg border ${darkMode ? 'bg-gray-700 border-gray-600' : 'bg-white border-gray-300'} ${errors.inputFormat ? 'border-red-500' : ''}`}
+                    placeholder="Describe the input format (e.g. The first line contains an integer n...)"
+                  />
+                  {errors.inputFormat && <p className="mt-1 text-sm text-red-500">{errors.inputFormat}</p>}
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-2">Output Format<span className="text-red-500">*</span></label>
+                  <textarea
+                    name="outputFormat"
+                    value={formData.outputFormat}
+                    onChange={handleChange}
+                    rows={4}
+                    className={`w-full px-4 py-3 rounded-lg border ${darkMode ? 'bg-gray-700 border-gray-600' : 'bg-white border-gray-300'} ${errors.outputFormat ? 'border-red-500' : ''}`}
+                    placeholder="Describe the output format (e.g. Print a single integer representing...)"
+                  />
+                  {errors.outputFormat && <p className="mt-1 text-sm text-red-500">{errors.outputFormat}</p>}
+                </div>
+              </div>
+
               <div className="space-y-4">
                 {formData.samples.map((sample, index) => (
                   <div 
@@ -255,7 +286,7 @@ const token = useSelector((state)=>state.auth.token)
                   >
                     <div className="flex justify-between items-center mb-3">
                       <h3 className="font-medium">Sample {index + 1}</h3>
-                      {index > 0 && (
+                      {formData.samples.length > 1 && (
                         <button
                           type="button"
                           onClick={() => removeSample(index)}
@@ -379,7 +410,7 @@ const token = useSelector((state)=>state.auth.token)
               <FaArrowLeft /> Cancel
             </button>
             <button
-              type="button"
+              type="submit"
               onClick={handleSubmit}
               disabled={isLoading}
               className={`px-6 py-2 rounded-lg flex items-center gap-2 ${darkMode ? 'bg-blue-600 hover:bg-blue-500' : 'bg-blue-500 hover:bg-blue-400'} text-white disabled:opacity-50`}

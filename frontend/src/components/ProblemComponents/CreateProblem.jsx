@@ -20,6 +20,8 @@ const CreateProblemPage = () => {
     difficulty: 'medium',
     tags: [],
     constraints: '',
+    inputFormat: '',
+    outputFormat: '',
     samples: [{ input: '', output: '', explanation: '' }],
     testCases: [],
     testCaseFile: null,
@@ -44,6 +46,14 @@ const CreateProblemPage = () => {
 
     if (!formData.description.trim()) {
       newErrors.description = 'Description is required';
+    }
+
+    if (!formData.inputFormat.trim()) {
+      newErrors.inputFormat = 'Input format is required';
+    }
+
+    if (!formData.outputFormat.trim()) {
+      newErrors.outputFormat = 'Output format is required';
     }
 
     if (formData.tags.length === 0) {
@@ -83,6 +93,8 @@ const CreateProblemPage = () => {
       const problemData = {
         title: formData.title,
         description: formData.description,
+        inputFormat: formData.inputFormat,
+        outputFormat: formData.outputFormat,
         difficulty: formData.difficulty,
         tags: formData.tags.map(tag => tag.trim().toLowerCase()),
         constraints: formData.constraints,
@@ -211,17 +223,14 @@ const CreateProblemPage = () => {
             )}
 
             {activeTab === 'Testcase' && (
-             
-             
-               <div className="mt-8">
-        <TestCaseSection 
-          darkMode={darkMode} 
-          formData={formData} 
-          setFormData={setFormData} 
-          errors={errors} 
-        />
-      </div>
-      
+              <div className="mt-8">
+                <TestCaseSection 
+                  darkMode={darkMode} 
+                  formData={formData} 
+                  setFormData={setFormData} 
+                  errors={errors} 
+                />
+              </div>
             )}
 
             {activeTab === 'settings' && (

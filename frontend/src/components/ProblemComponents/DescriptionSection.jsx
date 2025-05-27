@@ -2,8 +2,6 @@ import React from 'react';
 import Select from 'react-select';
 import { FaPlus, FaTimes } from 'react-icons/fa';
 
-
-
 const tagOptions = [
   { value: 'Array', label: 'Array' },
   { value: 'Backtracking', label: 'Backtracking' },
@@ -34,9 +32,7 @@ const DescriptionSection = ({ formData, setFormData, errors, darkMode }) => {
     }));
   };
 
-
-
-   const handleTagChange = (selectedOptions) => {
+  const handleTagChange = (selectedOptions) => {
     setFormData(prev => ({
       ...prev,
       tags: selectedOptions ? selectedOptions.map(option => option.value) : []
@@ -100,7 +96,7 @@ const DescriptionSection = ({ formData, setFormData, errors, darkMode }) => {
     }),
   };
 
-   const handleSampleChange = (index, field, value) => {
+  const handleSampleChange = (index, field, value) => {
     const newSamples = [...formData.samples];
     newSamples[index][field] = value;
     setFormData(prev => ({
@@ -109,7 +105,7 @@ const DescriptionSection = ({ formData, setFormData, errors, darkMode }) => {
     }));
   };
 
-    const addNewSample = () => {
+  const addNewSample = () => {
     setFormData({
       ...formData,
       samples: [...formData.samples, { input: '', output: '', explanation: '' }]
@@ -121,10 +117,6 @@ const DescriptionSection = ({ formData, setFormData, errors, darkMode }) => {
     newSamples.splice(index, 1);
     setFormData({...formData, samples: newSamples});
   };
-
-
-
- 
 
   return (
     <div className="space-y-6">
@@ -154,66 +146,95 @@ const DescriptionSection = ({ formData, setFormData, errors, darkMode }) => {
         {errors.description && <p className="mt-1 text-sm text-red-500">{errors.description}</p>}
       </div>
 
-      <div className='space-y-6'>
-         {formData.samples.map((sample, index) => (
-                <div key={index} className= {`border ${darkMode ? 'bg-gray-700 border-gray-600' : 'bg-white border-gray-300'} rounded-lg p-4`}>
-                  <div className="flex justify-between items-center mb-3">
-                    <h3 className="font-medium">Sample {index + 1}</h3>
-                    {index > 0 && (
-                      <button
-                        type="button"
-                        onClick={() => removeSample(index)}
-                        className="text-red-500 hover:text-red-700"
-                      >
-                        <FaTimes />
-                      </button>
-                    )}
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium mb-2">Input<span className="text-red-500">*</span></label>
-                      <textarea
-                        value={sample.input}
-                        onChange={(e) => handleSampleChange(index, 'input', e.target.value)}
-                        rows={4}
-                        className={`w-full px-4 py-3 rounded-lg border ${darkMode ? 'bg-gray-700 border-gray-600' : 'bg-white border-gray-300'} ${errors.samples?.includes(`Sample ${index + 1}`) ? 'border-red-500' : ''}`}
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium mb-2">Output<span className="text-red-500">*</span></label>
-                      <textarea
-                        value={sample.output}
-                        onChange={(e) => handleSampleChange(index, 'output', e.target.value)}
-                        rows={4}
-                        className={`w-full px-4 py-3 rounded-lg border ${darkMode ? 'bg-gray-700 border-gray-600' : 'bg-white border-gray-300'} ${errors.samples?.includes(`Sample ${index + 1}`) ? 'border-red-500' : ''}`}
-                      />
-                    </div>
-                  </div>
-                  <div className="mt-4">
-                    <label className="block text-sm font-medium mb-2">Explanation (Optional)</label>
-                    <textarea
-                      value={sample.explanation}
-                      onChange={(e) => handleSampleChange(index, 'explanation', e.target.value)}
-                      rows={3}
-                      className={`w-full px-4 py-3 rounded-lg border ${darkMode ? 'bg-gray-700 border-gray-600' : 'bg-white border-gray-300'}`}
-                      placeholder="Explain how the input produces this output..."
-                    />
-                  </div>
-                </div>
-              ))}
-              {errors.samples && !errors.samples.includes('Sample') && (
-                <p className="text-sm text-red-500">{errors.samples}</p>
-              )}
-              <button
-                type="button"
-                onClick={addNewSample}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg ${darkMode ? 'bg-gray-700 hover:bg-gray-600' : 'bg-gray-200 hover:bg-gray-300'}`}
-              >
-                <FaPlus /> Add Sample
-              </button>
+      {/* Input and Output Format Fields - Side by Side */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label className="block text-sm font-medium mb-2">Input Format<span className="text-red-500">*</span></label>
+          <textarea
+            name="inputFormat"
+            value={formData.inputFormat}
+            onChange={handleChange}
+            rows={4}
+            className={`w-full px-4 py-3 rounded-lg border ${darkMode ? 'bg-gray-700 border-gray-600' : 'bg-white border-gray-300'} ${errors.inputFormat ? 'border-red-500' : ''}`}
+            placeholder="Describe the input format (e.g. The first line contains an integer n...)"
+          />
+          {errors.inputFormat && <p className="mt-1 text-sm text-red-500">{errors.inputFormat}</p>}
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium mb-2">Output Format<span className="text-red-500">*</span></label>
+          <textarea
+            name="outputFormat"
+            value={formData.outputFormat}
+            onChange={handleChange}
+            rows={4}
+            className={`w-full px-4 py-3 rounded-lg border ${darkMode ? 'bg-gray-700 border-gray-600' : 'bg-white border-gray-300'} ${errors.outputFormat ? 'border-red-500' : ''}`}
+            placeholder="Describe the output format (e.g. Print a single integer representing...)"
+          />
+          {errors.outputFormat && <p className="mt-1 text-sm text-red-500">{errors.outputFormat}</p>}
+        </div>
       </div>
 
-       <div>
+      <div className='space-y-6'>
+        {formData.samples.map((sample, index) => (
+          <div key={index} className={`border ${darkMode ? 'bg-gray-700 border-gray-600' : 'bg-white border-gray-300'} rounded-lg p-4`}>
+            <div className="flex justify-between items-center mb-3">
+              <h3 className="font-medium">Sample {index + 1}</h3>
+              {index > 0 && (
+                <button
+                  type="button"
+                  onClick={() => removeSample(index)}
+                  className="text-red-500 hover:text-red-700"
+                >
+                  <FaTimes />
+                </button>
+              )}
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium mb-2">Input<span className="text-red-500">*</span></label>
+                <textarea
+                  value={sample.input}
+                  onChange={(e) => handleSampleChange(index, 'input', e.target.value)}
+                  rows={4}
+                  className={`w-full px-4 py-3 rounded-lg border ${darkMode ? 'bg-gray-700 border-gray-600' : 'bg-white border-gray-300'} ${errors.samples?.includes(`Sample ${index + 1}`) ? 'border-red-500' : ''}`}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2">Output<span className="text-red-500">*</span></label>
+                <textarea
+                  value={sample.output}
+                  onChange={(e) => handleSampleChange(index, 'output', e.target.value)}
+                  rows={4}
+                  className={`w-full px-4 py-3 rounded-lg border ${darkMode ? 'bg-gray-700 border-gray-600' : 'bg-white border-gray-300'} ${errors.samples?.includes(`Sample ${index + 1}`) ? 'border-red-500' : ''}`}
+                />
+              </div>
+            </div>
+            <div className="mt-4">
+              <label className="block text-sm font-medium mb-2">Explanation (Optional)</label>
+              <textarea
+                value={sample.explanation}
+                onChange={(e) => handleSampleChange(index, 'explanation', e.target.value)}
+                rows={3}
+                className={`w-full px-4 py-3 rounded-lg border ${darkMode ? 'bg-gray-700 border-gray-600' : 'bg-white border-gray-300'}`}
+                placeholder="Explain how the input produces this output..."
+              />
+            </div>
+          </div>
+        ))}
+        {errors.samples && !errors.samples.includes('Sample') && (
+          <p className="text-sm text-red-500">{errors.samples}</p>
+        )}
+        <button
+          type="button"
+          onClick={addNewSample}
+          className={`flex items-center gap-2 px-4 py-2 rounded-lg ${darkMode ? 'bg-gray-700 hover:bg-gray-600' : 'bg-gray-200 hover:bg-gray-300'}`}
+        >
+          <FaPlus /> Add Sample
+        </button>
+      </div>
+
+      <div>
         <label className="block text-sm font-medium mb-2">Constraints<span className="text-red-500">*</span></label>
         <textarea
           name="constraints"
@@ -224,7 +245,6 @@ const DescriptionSection = ({ formData, setFormData, errors, darkMode }) => {
           placeholder="List any constraints (e.g. 1 <= nums.length <= 10^4)"
         />
       </div>
-      
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
@@ -238,33 +258,25 @@ const DescriptionSection = ({ formData, setFormData, errors, darkMode }) => {
             <option value="easy">Easy</option>
             <option value="medium">Medium</option>
             <option value="hard">Hard</option>
-           
           </select>
         </div>
 
         <div>
-        <label className="block text-sm font-medium mb-2">Tags <span className="text-red-500">*</span></label>
-        <Select
-          isMulti
-          name="tags"
-          options={tagOptions}
-          className="basic-multi-select"
-          classNamePrefix="select"
-          styles={customStyles}
-          value={formData.tags.map(tag => ({ value: tag, label: tag }))}
-          onChange={handleTagChange}
-          placeholder="Select tags..."
-        />
-        {errors.tags && <p className="mt-1 text-sm text-red-500">{errors.tags}</p>}
+          <label className="block text-sm font-medium mb-2">Tags <span className="text-red-500">*</span></label>
+          <Select
+            isMulti
+            name="tags"
+            options={tagOptions}
+            className="basic-multi-select"
+            classNamePrefix="select"
+            styles={customStyles}
+            value={formData.tags.map(tag => ({ value: tag, label: tag }))}
+            onChange={handleTagChange}
+            placeholder="Select tags..."
+          />
+          {errors.tags && <p className="mt-1 text-sm text-red-500">{errors.tags}</p>}
+        </div>
       </div>
-      
-      </div>
-
-     
-
-      
-
-  
     </div>
   );
 };

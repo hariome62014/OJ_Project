@@ -19,7 +19,7 @@ const ProblemsPage = () => {
   const darkMode = useSelector((state) => state.theme.darkMode);
   const dispatch = useDispatch();
  const { 
-  problems, 
+  problem, 
   loading,  // Changed from 'status' to 'loading' to match your slice
   error, 
   pagination 
@@ -41,7 +41,7 @@ const ProblemsPage = () => {
       difficulty: filters.difficulty.join(','),
       search: searchTerm
     }));
-    console.log("Problems",problems)
+    console.log("Problems",problem)
   }, [dispatch, pagination.currentPage, pagination.pageSize, filters.difficulty, searchTerm]);
 
   // Transform the data from the API format to the format your UI expects
@@ -61,7 +61,7 @@ const ProblemsPage = () => {
 };
 
   // Filter and sort problems
-  const filteredProblems = problems
+  const filteredProblems = problem
     .map(transformProblemData)
     .filter(problem => {
       const matchesSearch = problem.title.toLowerCase().includes(searchTerm.toLowerCase());

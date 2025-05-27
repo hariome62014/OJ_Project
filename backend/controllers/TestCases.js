@@ -261,6 +261,8 @@ createTestCasesFromFile: async (req, res, next) => {
   // Get all test cases for a problem
   getTestCases: async (req, res, next) => {
     try {
+
+      console.log("Req.params",req.params);
       const { problemId } = req.params;
       const { showAll } = req.query;
 
