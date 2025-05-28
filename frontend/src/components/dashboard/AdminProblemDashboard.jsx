@@ -378,7 +378,10 @@ const AdminPage = () => {
                           className={`${darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-50'}`}
                         >
                           <td className="px-4 py-4">
-                            <div className="font-medium">{problem.title}</div>
+                            {/* <div className="font-medium">{problem.title}</div> */}
+                            <Link  to={`/problems/${problem.id}`}  className={`font-medium ${darkMode ? 'text-blue-400 hover:text-blue-300' : 'text-blue-600 hover:text-blue-500'}`} >
+                            {problem.title}
+                            </Link>
                             <div className="text-xs md:hidden mt-1">
                               <span className={`px-1 inline-flex text-xs leading-4 font-semibold rounded-full ${
                                 problem.difficulty === 'easy' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' :

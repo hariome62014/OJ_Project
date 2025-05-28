@@ -61,27 +61,36 @@ const ProblemsPage = () => {
 };
 
   // Filter and sort problems
-  const filteredProblems = problem
-    .map(transformProblemData)
-    .filter(problem => {
-      const matchesSearch = problem.title.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesDifficulty = filters.difficulty.length === 0 || 
-        filters.difficulty.map(d => d.toLowerCase()).includes(problem.difficulty.toLowerCase());
-      const matchesStatus = filters.status.length === 0 || 
-        (filters.status.includes('solved') && problem.solved) ||
-        (filters.status.includes('unsolved') && !problem.solved);
-      return matchesSearch && matchesDifficulty && matchesStatus;
-    })
-    .sort((a, b) => {
-      switch(sortOption) {
-        case 'acceptance': return parseFloat(b.acceptance) - parseFloat(a.acceptance);
-        case 'difficulty': 
-          const difficultyOrder = { 'Easy': 1, 'Medium': 2, 'Hard': 3 };
-          return difficultyOrder[a.difficulty] - difficultyOrder[b.difficulty];
-        case 'frequency': return b.frequency - a.frequency;
-        default: return new Date(b.createdAt) - new Date(a.createdAt); // Sort by createdAt for recent
-      }
-    });
+ const filteredProblems = (Array.isArray(problem) ? problem : [])
+  .map(transformProblemData)
+  .filter(Boolean) // Remove null entries (if transform returns null)
+  .filter(problem => {
+    const searchLower = searchTerm.toLowerCase();
+    const difficultyLower = problem.difficulty.toLowerCase();
+    const titleLower = problem.title.toLowerCase();
+
+    const matchesSearch = titleLower.includes(searchLower);
+    const matchesDifficulty = filters.difficulty.length === 0 || 
+      filters.difficulty.some(d => d.toLowerCase() === difficultyLower);
+    const matchesStatus = filters.status.length === 0 || 
+      (filters.status.includes('solved') && problem.solved) ||
+      (filters.status.includes('unsolved') && !problem.solved);
+
+    return matchesSearch && matchesDifficulty && matchesStatus;
+  })
+  .sort((a, b) => {
+    switch(sortOption) {
+      case 'acceptance': 
+        return parseFloat(b.acceptance) - parseFloat(a.acceptance);
+      case 'difficulty': 
+        const difficultyOrder = { 'Easy': 1, 'Medium': 2, 'Hard': 3 };
+        return difficultyOrder[a.difficulty] - difficultyOrder[b.difficulty];
+      case 'frequency': 
+        return b.frequency - a.frequency;
+      default: 
+        return (new Date(b.createdAt) - new Date(a.createdAt)); // Fallback: sort by date
+    }
+  });
 
   const toggleFilter = (filterType, value) => {
     setFilters(prev => ({
