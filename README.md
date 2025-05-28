@@ -1,6 +1,6 @@
 # CodeJudge - Leetcode-style Online Judge (MERN Stack)
 
-![CodeJudge Banner](https://via.placeholder.com/1200x400?text=CodeJudge+Banner+Preview)  
+![CodeJudge Banner](https://github.com/hariome62014/OJ_Project/blob/main/frontend/src/assets/Screenshot%202025-05-28%20133933.png)  
 
 
 A **full-featured Online Judge** for C++ submissions with role-based authentication (Admin/Participant), real-time code execution, and problem management—inspired by Leetcode.
@@ -50,11 +50,11 @@ A **full-featured Online Judge** for C++ submissions with role-based authenticat
 
 ## 📸 Screenshots
 
-| ![Admin Dashboard](https://via.placeholder.com/400x225?text=Admin+Dashboard) | ![Problem Solving](https://via.placeholder.com/400x225?text=Problem+Solving+View) |
+| ![Admin Dashboard](https://github.com/hariome62014/OJ_Project/blob/main/frontend/src/assets/Screenshot%202025-05-28%20134036.png) | ![Learner's Dashboard](https://github.com/hariome62014/OJ_Project/blob/main/frontend/src/assets/Screenshot%202025-05-28%20134530.png) |
 |------------------------------------------------------------------------------|-----------------------------------------------------------------------------------|
-| **Admin Dashboard**                                                          | **Problem Solving Interface**                                                     |
+| **Admin Dashboard**                                                          | **Learner's Dashboard**                                                     |
 
-| ![Submission Results](https://via.placeholder.com/800x225?text=Submission+Results+Page) |
-|---------------------------------------------------------------------------------------|
-| **Detailed Submission Results**                                                      |
+| ![Problem Solving Interface](https://github.com/hariome62014/OJ_Project/blob/main/frontend/src/assets/Screenshot%202025-05-28%20135622.png) | ![Submission Result](https://github.com/hariome62014/OJ_Project/blob/main/frontend/src/assets/Screenshot%202025-05-28%20134448.png) |
+|------------------------------------------------------------------------------|-----------------------------------------------------------------------------------|
+| **Problem Solving Interface**                                                          | **Submission Result**                                                     |                                                     |
 
