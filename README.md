@@ -1,5 +1,14 @@
 # CodeJudge - Leetcode-style Online Judge (MERN Stack)
 
+## 🎥 Demo Walkthrough
+
+<div align="center">
+  <a href="https://res.cloudinary.com/djsy3fc1j/video/upload/v1748435076/eknvlfgxjvnjd886xtmf.mp4">
+    <img src="https://img.shields.io/badge/Watch_Demo-FF0000?style=for-the-badge&logo=videocam&logoColor=white" alt="Watch Demo" height="40">
+  </a>
+
+</div>
+
 ![CodeJudge Banner](https://github.com/hariome62014/OJ_Project/blob/main/frontend/src/assets/Screenshot%202025-05-28%20133933.png)  
 
 
