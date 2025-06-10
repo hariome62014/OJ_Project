@@ -34,7 +34,6 @@ const Navbar = () => {
   // const user = useSelector((state) => state.auth.user);
   const user = useSelector((state) => state.profile.user);
 
-  console.log("User on Navbar",user)
 
   // Handle clicks outside dropdowns to close them
   useEffect(() => {
@@ -92,7 +91,6 @@ const cancelLogout = () => {
   };
 
 const problem = useSelector((state)=>state.problem);
-console.log("Problem on NavBar",problem)
 const problemId = problem.problem._id;
 const location = useLocation();
 

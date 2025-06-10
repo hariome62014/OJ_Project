@@ -1,9 +1,9 @@
-const Problem = require('../models/Problem');
+const Problem = require('../shared/models/Problem');
 const { NotFoundError, ForbiddenError, BadRequestError } = require('../errors/index');
 const { validateProblemInput } = require('../validators/Problem');
 const mongoose = require('mongoose')
-const TestCase = require('../models/TestCase')
-const Submission = require('../models/Submission')
+const TestCase = require('../shared/models/TestCase')
+const Submission = require('../shared/models/Submission')
 
 // Helper function to format problem response
 const formatProblemResponse = (problem, showAllTestCases = false) => {
@@ -25,9 +25,9 @@ const formatProblemResponse = (problem, showAllTestCases = false) => {
 exports.createProblem = async (req, res, next) => {
   try {
     // Validate input exists
-    console.log("Reached create Problem controller")
+    // console.log("Reached create Problem controller")
     if (!req.body || Object.keys(req.body).length === 0) {
-      console.log("Request body is empty")
+      // console.log("Request body is empty")
       return res.status(400).json({
         success: false,
         error: 'Request body is empty'
@@ -36,14 +36,14 @@ exports.createProblem = async (req, res, next) => {
 
     // Validate required user information
     if (!req.user || !req.user.id) {
-      console.log("Authentication required")
+      // console.log("Authentication required")
       return res.status(401).json({
         success: false,
         error: 'Authentication required'
       });
     }
 
-    console.log("req.body",req.body)
+    // console.log("req.body",req.body)
 
     // Prepare problem data
     const problemData = {
@@ -51,7 +51,7 @@ exports.createProblem = async (req, res, next) => {
       createdBy: req.user.id
     };
 
-    console.log("Problem Data recieved:",problemData)
+    // console.log("Problem Data recieved:",problemData)
 
     // Validate test cases structure if provided
     // if (problemData.testCases) {
@@ -80,7 +80,7 @@ exports.createProblem = async (req, res, next) => {
       data: formatProblemResponse(problem, true)
     });
   } catch (err) {
-    console.log("Error: Validation failed",err)
+    // console.log("Error: Validation failed",err)
     // Handle Mongoose validation errors specifically
     if (err.name === 'ValidationError') {
       const errors = {};
@@ -109,7 +109,7 @@ exports.createProblem = async (req, res, next) => {
 
 exports.getAllProblems = async (req, res, next) => {
   try {
-    console.log("Reached getAllProblems controller");
+    // console.log("Reached getAllProblems controller");
 
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
@@ -132,7 +132,7 @@ const [problems, total] = await Promise.all([
   Problem.countDocuments(filter)
 ]);
 
-console.log("Problems:::6",problems)
+// console.log("Problems:::6",problems)
 
     
 
@@ -161,7 +161,7 @@ console.log("Problems:::6",problems)
   return problemObj;
 });
 
-      console.log("problemsWithStatus",problems)
+      // console.log("problemsWithStatus",problems)
 
       return res.json({
         success: true,
@@ -194,6 +194,7 @@ console.log("Problems:::6",problems)
 
 exports.getProblemById = async (req, res, next) => {
   try {
+
     const isAdmin = req.user?.role === 'admin';
     
     // Set query options before population
@@ -212,19 +213,25 @@ exports.getProblemById = async (req, res, next) => {
         match: { isPublic: true }
       });
     }
+
+
     
     const problem = await query;
+
+
     
     
     if (!problem) {
+
       throw new NotFoundError('Problem not found');
     }
-    
     res.json({
+      
       success: true,
       data: problem
     });
   } catch (err) {
+    console.log("Error on getProblemById",err);
     next(err);
   }
 };
@@ -275,8 +282,8 @@ exports.deleteProblem = async (req, res, next) => {
 
     // 3. Authorization check
     // const isAdmin = req.user?.role === 'admin';
-    console.log("createdById",createdById)
-    console.log("currentUserId",currentUserId)
+    // console.log("createdById",createdById)
+    // console.log("currentUserId",currentUserId)
     const isOwner = createdById === currentUserId;
     
     if (!isOwner) {

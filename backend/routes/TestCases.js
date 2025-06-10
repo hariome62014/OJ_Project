@@ -2,7 +2,7 @@ const express = require('express')
 // In your testcasesRoutes.js file
 const router = express.Router({ mergeParams: true }); // This is crucial
 
-const {auth,isAdmin} = require('../middlewares/Auth')
+const {auth,isAdmin} = require('../shared/middlewares/Auth')
 const {createTestCase,uploadTestCases,createTestCasesFromFile,getTestCases,updateTestCase, deleteTestCase, deleteAllTestCases}  = require('../controllers/TestCases')
 
 router.post('/create',auth,isAdmin,createTestCase)

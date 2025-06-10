@@ -30,7 +30,7 @@ export function addManualTestCase(problemId, testCaseData, token) {
       toast.success("Test case added successfully!");
       return response.data.data;
     } catch (error) {
-      console.error("ADD TEST CASE ERROR:", error);
+      // console.error("ADD TEST CASE ERROR:", error);
       const errorMessage = error.response?.data?.message || 
                          error.message || 
                          "Failed to add test case";
@@ -73,7 +73,7 @@ export function updateManualTestCase(problemId, testCaseId, updatedData, token) 
       toast.success("Test case updated successfully!");
       return response.data.data;
     } catch (error) {
-      console.error("UPDATE TEST CASE ERROR:", error);
+      // console.error("UPDATE TEST CASE ERROR:", error);
       const errorMessage = error.response?.data?.message || 
                          error.message || 
                          "Failed to update test case";
@@ -121,7 +121,7 @@ export function uploadTestCaseZip(problemId, zipFile, token) {
       toast.success("Test cases uploaded successfully!");
       return response.data;
     } catch (error) {
-      console.error("UPLOAD TEST CASE ERROR:", error);
+      // console.error("UPLOAD TEST CASE ERROR:", error);
       let errorMessage = "Failed to upload test cases";
       
       if (error.response) {
@@ -179,7 +179,7 @@ export function deleteAllTestCases(problemId, token) {
       toast.success("All test cases deleted successfully!");
       return response.data.data;
     } catch (error) {
-      console.error("DELETE ALL TEST CASES ERROR:", error);
+      // console.error("DELETE ALL TEST CASES ERROR:", error);
       const errorMessage = error.response?.data?.message || 
                          error.message || 
                          "Failed to delete all test cases";

@@ -26,11 +26,11 @@ export function fetchProblems(page = 1, limit = 10, filters = {}) {
       };
 
 
-      console.log("FETCH_PROBLEM_LIST_API",FETCH_PROBLEM_LIST_API)
+      // console.log("FETCH_PROBLEM_LIST_API",FETCH_PROBLEM_LIST_API)
 
       const response = await apiConnector("POST", FETCH_PROBLEM_LIST_API, null, null, { params });
       
-      console.log("FETCH PROBLEMS API RESPONSE............", response);
+      // console.log("FETCH PROBLEMS API RESPONSE............", response);
 
       if (!response.data.success) {
         throw new Error(response.data.message);
@@ -45,7 +45,7 @@ export function fetchProblems(page = 1, limit = 10, filters = {}) {
       dispatch(setPagination(response.data.pagination));
       // toast.success(`Loaded ${problems.length} problems`);
     } catch (error) {
-      console.log("FETCH PROBLEMS API ERROR............", error);
+      // console.log("FETCH PROBLEMS API ERROR............", error);
       dispatch(setError(error.response?.data?.message || error.message || "Failed to fetch problems"));
       toast.error(error.response?.data?.message || "Failed to load problems");
     } finally {
@@ -55,32 +55,34 @@ export function fetchProblems(page = 1, limit = 10, filters = {}) {
   };
 }
 
-export function fetchProblemById(problemId) {
+export function fetchProblemById(problemId,token) {
   return async (dispatch) => {
     const toastId = toast.loading("Loading problem details...");
     dispatch(setLoading(true));
 
     try {
+
+      // console.log("Token found::",token)
       
       const response = await apiConnector(
         "GET",
         `${FETCH_PROBLEM_BY_ID_API}/${problemId}`,
         null,
-        null,
+        { Authorization: `Bearer ${token}`}, 
         null 
       );
 
-      console.log("FETCH PROBLEM BY ID API RESPONSE............", response);
+      // console.log("FETCH PROBLEM BY ID API RESPONSE............", response);
 
-      if (!response.data.success) {
-        throw new Error(response.data.message);
-      }
+      // if (!response.data.success) {
+      //   throw new Error(response.data.message);
+      // }
 
       const problem = response.data.data;
       dispatch(setProblems(problem)); // Assuming you have a setProblem action
       // toast.success("Problem loaded successfully");
     } catch (error) {
-      console.log("FETCH PROBLEM BY ID API ERROR............", error);
+      // console.log("FETCH PROBLEM BY ID API ERROR............", error);
       dispatch(
         setError(
           error.response?.data?.message ||
@@ -104,7 +106,7 @@ export function createProblem(problemData, token) {
     dispatch(setLoading(true));
     
     try {
-      console.log("Problem Data:", problemData);
+      // console.log("Problem Data:", problemData);
 
     
 
@@ -116,7 +118,7 @@ export function createProblem(problemData, token) {
         null          // No URL params needed
       );
 
-      console.log("CREATE PROBLEM API RESPONSE............", response);
+      // console.log("CREATE PROBLEM API RESPONSE............", response);
 
       if (!response.data.success) {
         throw new Error(response.data.message);
@@ -130,7 +132,7 @@ export function createProblem(problemData, token) {
       // Return the full response so caller can access status, headers, etc. if needed
       return createdProblem;
     } catch (error) {
-      console.log("CREATE PROBLEM API ERROR............", error);
+      // console.log("CREATE PROBLEM API ERROR............", error);
       
       // Extract error message from different possible locations
       const errorMessage = error.response?.data?.message || 
@@ -160,7 +162,7 @@ export function updateProblem( problemId,problemData, token) {
     dispatch(setLoading(true));
     
     try {
-      console.log("Problem Data:", problemData);
+      // console.log("Problem Data:", problemData);
 
       
 
@@ -172,7 +174,7 @@ export function updateProblem( problemId,problemData, token) {
         null
       );
 
-      console.log("UPDATE PROBLEM API RESPONSE............", response);
+      // console.log("UPDATE PROBLEM API RESPONSE............", response);
 
       if (!response.data.success) {
         throw new Error(response.data.message);
@@ -184,7 +186,7 @@ export function updateProblem( problemId,problemData, token) {
       
       return updatedProblem;
     } catch (error) {
-      console.log("UPDATE PROBLEM API ERROR............", error);
+      // console.log("UPDATE PROBLEM API ERROR............", error);
       
       const errorMessage = error.response?.data?.message || 
                          error.response?.data?.error || 
@@ -213,7 +215,7 @@ export function deleteProblem(problemId,token) {
     try {
             const endpoint = `${DELETE_PROBLEM_BASE_URL}/${problemId}/delete`;
 
-            console.log("Delete Endpoint",endpoint)
+            // console.log("Delete Endpoint",endpoint)
 
       const response = await apiConnector(
         "GET", 
@@ -223,7 +225,7 @@ export function deleteProblem(problemId,token) {
        null
       );
       
-      console.log("DELETE PROBLEM API RESPONSE............", response);
+      // console.log("DELETE PROBLEM API RESPONSE............", response);
 
       if (!response.data.success) {
         throw new Error(response.data.message);
@@ -238,7 +240,7 @@ export function deleteProblem(problemId,token) {
       
       return response.data; // Return response for potential chaining
     } catch (error) {
-      console.log("DELETE PROBLEM API ERROR............", error);
+      // console.log("DELETE PROBLEM API ERROR............", error);
       dispatch(setError(error.response?.data?.message || error.message || "Failed to delete problem"));
       toast.error(error.response?.data?.message || "Failed to delete problem");
       throw error; // Re-throw for component-level handling

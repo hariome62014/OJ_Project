@@ -32,7 +32,7 @@ const AdminPage = () => {
     pagination 
   } = useSelector((state) => state.problem);
 
-  console.log("Problem on Admin Dashboard",problem[0])
+  // console.log("Problem on Admin Dashboard",problem[0])
   
   const [searchTerm, setSearchTerm] = useState('');
   const [filters, setFilters] = useState({
@@ -59,7 +59,7 @@ const AdminPage = () => {
   }, [dispatch, pagination.currentPage, pagination.pageSize, filters.difficulty, searchTerm]);
 
   const transformProblemData = (problem) => {
-    console.log("transformProblemData",problem.testCases)
+    // console.log("transformProblemData",problem.testCases)
     return {
       id: problem._id,
       title: problem.title,
@@ -159,10 +159,10 @@ const AdminPage = () => {
   
 
   const openTestCaseModal = (problem) => {
-    console.log("Hello Reached openTestCaseModal",problem)
+    // console.log("Hello Reached openTestCaseModal",problem)
     setSelectedProblem(problem);
     setIsTestCaseModalOpen(true);
-    console.log("SelectedProblem::::",selectedProblem)
+    // console.log("SelectedProblem::::",selectedProblem)
   };
 
   const openProblemModal = (problem = null, action = 'create') => {

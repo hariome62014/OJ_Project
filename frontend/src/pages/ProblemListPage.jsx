@@ -6,6 +6,7 @@ import {
   FaFilter, 
   FaSort, 
   FaCheckCircle,
+  FaTimesCircle,
   FaLock,
   FaChevronLeft,
   FaChevronRight,
@@ -33,6 +34,9 @@ const ProblemsPage = () => {
   });
   const [sortOption, setSortOption] = useState('recent');
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
+  const user = useSelector((state)=>state.profile.user)
+
+  // console.log("User on Problem List Page",user)
 
   useEffect(() => {
     dispatch(fetchProblems({
@@ -41,19 +45,19 @@ const ProblemsPage = () => {
       difficulty: filters.difficulty.join(','),
       search: searchTerm
     }));
-    console.log("Problems",problem)
+    // console.log("Problems",problem)
   }, [dispatch, pagination.currentPage, pagination.pageSize, filters.difficulty, searchTerm]);
 
   // Transform the data from the API format to the format your UI expects
  const transformProblemData = (problem) => {
-  console.log("problem.solved", problem);
+  // console.log("problem.solved", problem);
   return {
     id: problem._id,
     title: problem.title,
     difficulty: problem.difficulty.charAt(0).toUpperCase() + problem.difficulty.slice(1),
     category: problem.tags?.join(', ') || 'Unknown', // Show all tags joined by comma
     tags: problem.tags || [], // Keep original tags array if needed
-    acceptance: '72%', // Calculate this from your data
+    acceptance: problem.acceptance || "NA", // Calculate this from your data
     solved: problem.solved, // Get this from user data
     premium: !problem.isPublished,
     frequency: 0.5 // Calculate this based on usage data
@@ -299,13 +303,13 @@ const ProblemsPage = () => {
                           transition={{ delay: index * 0.05 }}
                           className={`${darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-50'}`}
                         >
-                          <td className="px-4 py-4 whitespace-nowrap">
-                            {problem.solved ? (
-                              <FaCheckCircle className="text-green-500" />
-                            ) : problem.premium ? (
-                              <FaLock className="text-yellow-500" />
-                            ) : null}
-                          </td>
+                         <td className="px-4 py-4 whitespace-nowrap text-sm hidden lg:table-cell">
+  {user && user.solvedProblems.includes(problem.id) ? (
+    <FaCheckCircle className="text-green-500" />
+  ) : (
+    <FaTimesCircle className="text-red-500" />
+  )}
+</td>
                           <td className="px-4 py-4">
                             <Link 
                               to={`/problems/${problem.id}`} 
@@ -346,9 +350,9 @@ const ProblemsPage = () => {
     ))}
   </div>
 </td>
-                          <td className="px-4 py-4 whitespace-nowrap text-sm hidden lg:table-cell">
-                            {problem.acceptance}
-                          </td>
+                         <td className="px-4 py-4 whitespace-nowrap text-sm hidden lg:table-cell">
+  {problem.acceptance ? `${problem.acceptance}%` : "NA"}
+</td>
                         </motion.tr>
                       ))
                     ) : (

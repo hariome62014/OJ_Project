@@ -116,7 +116,18 @@ const TestCaseModal = ({
       testCases: [...prev.testCases, { ...testCase }]
     }));
     setEditingIndex(localFormData.testCases.length);
-  }
+  },
+
+   removeAll: () => {
+    setTestCaseToRemove('all');
+    setShowConfirmModal(true);
+  },
+  confirmRemoveAll: () => {
+    setLocalFormData(prev => ({ ...prev, testCases: [] }));
+    setEditingIndex(null);
+    setShowConfirmModal(false);
+    setTestCaseToRemove(null);
+  },
 };
 
   const handleSave = async () => {
@@ -192,21 +203,35 @@ const TestCaseModal = ({
           <div className="overflow-y-auto p-6 space-y-6">
             {/* Manual Test Cases Section */}
             <div className="space-y-4">
-              <div className="flex justify-between items-center">
-                <h4 className="font-medium">
-                  {localFormData.testCases.length} Manual Test Case{localFormData.testCases.length !== 1 ? 's' : ''}
-                </h4>
-                <motion.button
-                  onClick={handleTestCase.add}
-                  whileHover={{ scale: 1.03 }}
-                  whileTap={{ scale: 0.98 }}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg ${
-                    darkMode ? 'bg-gray-700 hover:bg-gray-600' : 'bg-gray-200 hover:bg-gray-300'
-                  }`}
-                >
-                  <FaPlus /> Add Test Case
-                </motion.button>
-              </div>
+           <div className="flex justify-between items-center">
+  <h4 className="font-medium">
+    {localFormData.testCases.length} Manual Test Case{localFormData.testCases.length !== 1 ? 's' : ''}
+  </h4>
+  <div className="flex gap-2">
+    {localFormData.testCases.length > 0 && (
+      <motion.button
+        onClick={handleTestCase.removeAll}
+        whileHover={{ scale: 1.03 }}
+        whileTap={{ scale: 0.98 }}
+        className={`flex items-center gap-2 px-4 py-2 rounded-lg ${
+          darkMode ? 'bg-red-900/30 hover:bg-red-900/40 text-red-400' : 'bg-red-100 hover:bg-red-200 text-red-600'
+        }`}
+      >
+        <FaTrash /> Delete All
+      </motion.button>
+    )}
+    <motion.button
+      onClick={handleTestCase.add}
+      whileHover={{ scale: 1.03 }}
+      whileTap={{ scale: 0.98 }}
+      className={`flex items-center gap-2 px-4 py-2 rounded-lg ${
+        darkMode ? 'bg-gray-700 hover:bg-gray-600' : 'bg-gray-200 hover:bg-gray-300'
+      }`}
+    >
+      <FaPlus /> Add Test Case
+    </motion.button>
+  </div>
+</div>
 
               {localFormData.testCases.map((testCase, index) => (
                 <TestCaseItem
@@ -267,14 +292,18 @@ const TestCaseModal = ({
           </div>
         </motion.div>
       </div>
-      <ConfirmationModal
-        isOpen={showConfirmModal}
-        onConfirm={handleTestCase.confirmRemove}
-        onCancel={handleTestCase.cancelRemove}
-        message="Are you sure you want to delete this test case? This action cannot be undone."
-        darkMode={darkMode}
-        actionToBeTaken="Delete"
-      />
+     <ConfirmationModal
+  isOpen={showConfirmModal}
+  onConfirm={testCaseToRemove === 'all' ? handleTestCase.confirmRemoveAll : handleTestCase.confirmRemove}
+  onCancel={handleTestCase.cancelRemove}
+  message={
+    testCaseToRemove === 'all' 
+      ? "Are you sure you want to delete ALL test cases? This action cannot be undone."
+      : "Are you sure you want to delete this test case? This action cannot be undone."
+  }
+  darkMode={darkMode}
+  actionToBeTaken="Delete"
+/>
     </AnimatePresence>
   );
 };

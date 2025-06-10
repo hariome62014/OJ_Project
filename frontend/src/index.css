@@ -48,3 +48,32 @@
 .select__dropdown-indicator:hover {
   color: #4B5563 !important;
 }
+
+/* Add to your global CSS or component-specific styles */
+.prose {
+  line-height: 1.5;
+}
+
+.prose a {
+  text-decoration: underline;
+}
+
+.prose code {
+  font-family: monospace;
+  padding: 0.2em 0.4em;
+  border-radius: 0.25rem;
+}
+
+.prose pre {
+  padding: 1rem;
+  border-radius: 0.5rem;
+  overflow-x: auto;
+}
+
+.dark .prose code {
+  background-color: rgba(55, 65, 81, 0.5);
+}
+
+:not(.dark) .prose code {
+  background-color: rgba(243, 244, 246, 0.8);
+}

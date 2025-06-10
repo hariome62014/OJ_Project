@@ -1,12 +1,13 @@
 const express  = require('express')
 const dotenv  = require('dotenv')
-const connectDB = require('./config/Database')
+const connectDB = require('./shared/config/Database')
 const cookieParser = require('cookie-parser')
 const bodyParser = require('body-parser');
 const userRoutes =  require('./routes/User')
 const problemRoutes = require('./routes/Problem')
 const testcasesRoutes = require('./routes/TestCases')
 const submissionRoutes  = require('./routes/Submission')
+const CodeReviewRoutes = require('./routes/CodeReview')
 const cors = require("cors");
 
 
@@ -25,6 +26,8 @@ const corsOptions = {
   optionsSuccessStatus: 200 // For legacy browser support
 };
 
+
+
 // Middleware
 app.use(cors(corsOptions)); // Only use this once
 
@@ -33,12 +36,16 @@ app.use(bodyParser.json())
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 
+
+connectDB();
+
 app.use('/api/v1/auth',userRoutes)
 app.use('/api/v1/problems',problemRoutes)
 app.use('/api/v1/problems/:problemId/test-cases', testcasesRoutes);
-app.use('/api/v1/problems/:problemId/submission',submissionRoutes)
+app.use('/api/v1/problems/:problemId/submission',submissionRoutes);
+app.use('/api/v1/problems/analyze',CodeReviewRoutes)
 
-connectDB();
+
 
 const port  =  process.env.PORT || 5000
 

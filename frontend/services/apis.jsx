@@ -1,4 +1,8 @@
-const BASE_URL = import.meta.env.VITE_API_URL;;
+const BASE_URL = import.meta.env.VITE_API_URL;
+const COMPILER_BASE_API_URL = import.meta.env.VITE_COMPILER_API_URL;
+
+  console.log("COMPILER_BASE_API_URL",COMPILER_BASE_API_URL);
+
 
 // AUTH ENDPOINTS
 export const endpoints = {
@@ -37,5 +41,6 @@ export const testCasesEndpoint = {
 }
 
 export const submissionEndpoint = {
-  SUBMIT_SOLUTION_BASE_URL:BASE_URL + '/problems'
+  SUBMIT_SOLUTION_BASE_URL:BASE_URL + '/problems',
+  COMPILER_BASE_URL : COMPILER_BASE_API_URL + '/problems'
 }

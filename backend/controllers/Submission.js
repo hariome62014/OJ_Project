@@ -1,54 +1,41 @@
-// submissionController.js
-import Submission from '../models/Submission';
-import Problem from '../models/Problem';
-import { runCode } from '../utils/judgeService'; // Assume a code execution service
+const Submission = require('../shared/models/Submission');
 
-export const submitSolution = async (req, res) => {
+exports.getUserProblemSubmissions = async (req, res) => {
   try {
-    const { problemId, code, language } = req.body;
-    const userId = req.user._id; // From auth middleware
+    // console.log("Reached getUserProblemSubmissions...",req.body)
+    // const { userId, problemId } = req.params;
+     const {problemId} = req.body; // From the parent router
+    const userId = req.params.userId;
+    // console.log("userId, problemId",userId, problemId)
 
-    // Validate input
-    if (!problemId || !code || !language) {
-      return res.status(400).json({
-        success: false,
-        message: "Problem ID, code, and language are required",
-      });
-    }
+    const submissions = await Submission.find({
+      userId,
+      problemId
+    })
+    .sort({ createdAt: -1 }) // Sort by most recent first
+   
+    .lean();
 
-    // Check if problem exists
-    const problem = await Problem.findById(problemId);
-    if (!problem) {
-      return res.status(404).json({
-        success: false,
-        message: "Problem not found",
-      });
-    }
+    // console.log("Submissions",submissions);
 
-    // Execute code (example using a mock judge)
-    const executionResult = await runCode(code, language, problem.testCases);
+    const formattedSubmissions = submissions.map(sub => ({
+      id: sub._id,
+      date: sub.createdAt,
+      status: sub.status,
+      runtime: `${sub.overallRuntime.toFixed(2)} s`,
+      language: sub.language,
+      score: sub.score,
+      results: sub.results
+    }));
 
-    // Save submission
-    const submission = await Submission.create({
-      problem: problemId,
-      user: userId,
-      code,
-      language,
-      status: executionResult.passed ? "Accepted" : "Wrong Answer",
-      runtime: executionResult.runtime,
-      testCasesPassed: executionResult.passedTestCases,
-    });
+    // console.log("formattedSubmissions",formattedSubmissions);
 
-    res.status(201).json({
-      success: true,
-      message: "Solution submitted",
-      data: submission,
-    });
+    res.json(formattedSubmissions);
   } catch (error) {
-    console.error("Submission error:", error);
+    console.error('Error fetching user submissions:', error);
     res.status(500).json({
       success: false,
-      message: error.message || "Internal server error",
+      error: 'Failed to fetch submissions'
     });
   }
 };

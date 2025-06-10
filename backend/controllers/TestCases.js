@@ -1,5 +1,5 @@
-const TestCase = require('../models/TestCase');
-const Problem = require('../models/Problem');
+const TestCase = require('../shared/models/TestCase');
+const Problem = require('../shared/models/Problem');
 const fs = require('fs');
 const { promisify } = require('util');
 const readFile = promisify(fs.readFile);
@@ -55,8 +55,8 @@ module.exports = {
   // Create single test case
 createTestCase: async (req, res, next) => {
   try {
-    console.log("Reached createTestCase");
-    console.log("req.body", req.body);
+    // console.log("Reached createTestCase");
+    // console.log("req.body", req.body);
     const { problemId } = req.params;
     const testCases = req.body;
 
@@ -119,9 +119,9 @@ uploadTestCases :  (req, res, next) => {
 
 createTestCasesFromFile: async (req, res, next) => {
   try {
-    console.log('1. Starting file processing...');
+    // console.log('1. Starting file processing...');
     const { problemId } = req.params;
-    console.log(`2. Problem ID: ${problemId}`);
+    // console.log(`2. Problem ID: ${problemId}`);
 
     const problem = await Problem.findById(problemId);
     if (!problem) {
@@ -133,16 +133,16 @@ createTestCasesFromFile: async (req, res, next) => {
       console.error('4. Error: No file uploaded');
       return res.status(400).json({ error: 'ZIP file is required' });
     }
-    console.log(`5. File received: ${req.file.originalname}, path: ${req.file.path}`);
+    // console.log(`5. File received: ${req.file.originalname}, path: ${req.file.path}`);
 
     const zip = new AdmZip(req.file.path);
     const zipEntries = zip.getEntries();
-    console.log(`6. ZIP entries found: ${zipEntries.length}`);
+    // console.log(`6. ZIP entries found: ${zipEntries.length}`);
 
     // Debug: Log all entries in the ZIP
-    console.log('7. All ZIP entries:');
+    // console.log('7. All ZIP entries:');
     zipEntries.forEach(entry => {
-      console.log(`- ${entry.entryName} (${entry.isDirectory ? 'DIR' : 'FILE'})`);
+      // console.log(`- ${entry.entryName} (${entry.isDirectory ? 'DIR' : 'FILE'})`);
     });
 
     const createdTestCases = [];
@@ -155,14 +155,14 @@ createTestCasesFromFile: async (req, res, next) => {
         !entry.isDirectory
       );
     });
-    console.log(`8. Found ${inputFiles.length} input files matching pattern`);
+    // console.log(`8. Found ${inputFiles.length} input files matching pattern`);
 
     if (inputFiles.length === 0) {
-      console.error('9. Error: No input files found in /in/input*.txt');
+      // console.error('9. Error: No input files found in /in/input*.txt');
     }
 
     for (const inputFile of inputFiles) {
-      console.log(`10. Processing input file: ${inputFile.entryName}`);
+      // console.log(`10. Processing input file: ${inputFile.entryName}`);
       
       // Extract the number from input filename (e.g., "input1.txt" → 1)
       const inputNumber = path.basename(inputFile.entryName)
@@ -172,7 +172,7 @@ createTestCasesFromFile: async (req, res, next) => {
         console.warn(`11. Skipping: Could not extract number from filename ${inputFile.entryName}`);
         continue;
       }
-      console.log(`12. Extracted input number: ${inputNumber}`);
+      // console.log(`12. Extracted input number: ${inputNumber}`);
 
       // Find matching output file (handling nested paths)
       const outputFileName = `output${inputNumber}.txt`;
@@ -188,12 +188,12 @@ createTestCasesFromFile: async (req, res, next) => {
         console.warn(`13. No matching output file found for ${outputFileName}`);
         continue;
       }
-      console.log(`14. Found matching output file: ${outputFile.entryName}`);
+      // console.log(`14. Found matching output file: ${outputFile.entryName}`);
 
       const inputContent = inputFile.getData().toString('utf8').trim();
       const outputContent = outputFile.getData().toString('utf8').trim();
-      console.log(`15. Input content (first 50 chars): ${inputContent.substring(0, 50)}`);
-      console.log(`16. Output content (first 50 chars): ${outputContent.substring(0, 50)}`);
+      // console.log(`15. Input content (first 50 chars): ${inputContent.substring(0, 50)}`);
+      // console.log(`16. Output content (first 50 chars): ${outputContent.substring(0, 50)}`);
 
       try {
         const testCase = await TestCase.create({
@@ -209,18 +209,18 @@ createTestCasesFromFile: async (req, res, next) => {
             outputFile: outputFile.entryName
           }
         });
-        console.log(`17. Created test case with ID: ${testCase._id}`);
+        // console.log(`17. Created test case with ID: ${testCase._id}`);
 
         await problem.addTestCase(testCase._id);
         createdTestCases.push(testCase);
       } catch (err) {
-        console.error('18. Error creating test case:', err.message);
+        // console.error('18. Error creating test case:', err.message);
         throw err;
       }
     }
 
     fs.unlinkSync(req.file.path);
-    console.log('19. Temporary file cleaned up');
+    // console.log('19. Temporary file cleaned up');
 
     if (createdTestCases.length === 0) {
       console.error('20. Final Error: No valid test case pairs created');
@@ -234,7 +234,7 @@ createTestCasesFromFile: async (req, res, next) => {
       });
     }
 
-    console.log(`21. Successfully created ${createdTestCases.length} test cases`);
+    // console.log(`21. Successfully created ${createdTestCases.length} test cases`);
     res.status(201).json({
       success: true,
       message: `${createdTestCases.length} test cases created`,
@@ -252,7 +252,7 @@ createTestCasesFromFile: async (req, res, next) => {
     
     if (req.file?.path && fs.existsSync(req.file.path)) {
       fs.unlinkSync(req.file.path);
-      console.log('23. Cleaned up temp file after error');
+      // console.log('23. Cleaned up temp file after error');
     }
     next(err);
   }
@@ -262,7 +262,7 @@ createTestCasesFromFile: async (req, res, next) => {
   getTestCases: async (req, res, next) => {
     try {
 
-      console.log("Req.params",req.params);
+      // console.log("Req.params",req.params);
       const { problemId } = req.params;
       const { showAll } = req.query;
 
@@ -283,7 +283,7 @@ createTestCasesFromFile: async (req, res, next) => {
    // Update test case
   updateTestCase: async (req, res, next) => {
     try {
-        console.log(req.params);
+        // console.log(req.params);
       const testCase = await TestCase.findById(req.params.testcaseID);
       
       if (!testCase) {
@@ -311,7 +311,7 @@ createTestCasesFromFile: async (req, res, next) => {
   try {
     const { problemId, testCaseId } = req.params;
 
-    console.log(`1. Deleting test case ${testCaseId} from problem ${problemId}`);
+    // console.log(`1. Deleting test case ${testCaseId} from problem ${problemId}`);
 
     // Find the problem
     const problem = await Problem.findById(problemId);
@@ -328,14 +328,14 @@ createTestCasesFromFile: async (req, res, next) => {
     }
 
     // Remove from problem's testCases array
-    console.log('4. Removing test case reference from problem');
+    // console.log('4. Removing test case reference from problem');
     await problem.removeTestCase(testCaseId);
 
     // Delete the test case document
-    console.log('5. Deleting test case document');
+    // console.log('5. Deleting test case document');
     await TestCase.findByIdAndDelete(testCaseId);
 
-    console.log('6. Test case deleted successfully');
+    // console.log('6. Test case deleted successfully');
     res.status(204).json({
         success:true
     });
@@ -354,7 +354,7 @@ deleteAllTestCases : async (req, res, next) => {
   
   try {
     const { problemId } = req.params;
-    console.log(`1. Starting deletion of all test cases for problem ${problemId}`);
+    // console.log(`1. Starting deletion of all test cases for problem ${problemId}`);
 
     // Validate problem ID
     if (!mongoose.Types.ObjectId.isValid(problemId)) {
@@ -369,22 +369,22 @@ deleteAllTestCases : async (req, res, next) => {
       return res.status(404).json({ error: 'Problem not found' });
     }
 
-    console.log(`4. Found problem with ${problem.testCases.length} test cases`);
+    // console.log(`4. Found problem with ${problem.testCases.length} test cases`);
 
     // Delete all test case documents
     const deleteResult = await TestCase.deleteMany(
       { problemId: problemId },
       { session }
     );
-    console.log(`5. Deleted ${deleteResult.deletedCount} test case documents`);
+    // console.log(`5. Deleted ${deleteResult.deletedCount} test case documents`);
 
     // Clear testCases array in problem
     problem.testCases = [];
     await problem.save({ session });
-    console.log('6. Cleared test cases references from problem');
+    // console.log('6. Cleared test cases references from problem');
 
     await session.commitTransaction();
-    console.log('7. Transaction committed successfully');
+    // console.log('7. Transaction committed successfully');
 
     res.status(200).json({
       success: true,
