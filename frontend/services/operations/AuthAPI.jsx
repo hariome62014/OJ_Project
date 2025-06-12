@@ -75,8 +75,8 @@ export function signUp(
       navigate("/login")
     } catch (error) {
       dispatch(setProgress(100));
-      console.log("SIGNUP API ERROR............", error.response)
-      toast.error("Signup Failed:",error?.response?.data?.message)
+      console.log("SIGNUP API ERROR............", error.response.data.message)
+      toast.error("Signup Failed:",error.response.data.message)
       navigate("/signup")
     }
     dispatch(setLoading(false))
