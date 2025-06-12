@@ -187,7 +187,7 @@ if (shouldHideFooter) return null;
           </nav>
 
           {/* Right Side Actions */}
-          <div className={`flex items-center ${user ? 'space-x-6 px-2.5' : 'space-x-2 px-1'}`}>
+          <div className={`flex items-center ${user ? 'space-x-4 px-2.5' : 'space-x-1 px-1'}`}>
             {/* Theme Toggle */}
             <button 
               onClick={handleThemeToggle}
