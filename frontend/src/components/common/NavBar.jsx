@@ -140,7 +140,7 @@ if (shouldHideFooter) return null;
             <FaCode className={`
               ${darkMode ? 'text-yellow-400' : 'text-yellow-500'}
             `} />
-            <span>CodeJudge</span>
+            <span>CodeServ</span>
           </Link>
 
           {/* Desktop Navigation */}
