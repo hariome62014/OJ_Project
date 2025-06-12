@@ -114,8 +114,8 @@ export function login(email, password, navigate) {
      {response.data.user.role==='admin'?navigate('/admin-profile'):(navigate("/profile"))} 
     } catch (error) {
       dispatch(setProgress(100))
-      console.log("LOGIN API ERROR............", error)
-      toast.error(error.response.message|| "Something went wrong")
+      console.log("LOGIN API ERROR............", error.response.data)
+      toast.error(error.response.data.message|| "Something went wrong")
     }
     dispatch(setLoading(false))
     toast.dismiss(toastId)
