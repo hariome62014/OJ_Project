@@ -11,7 +11,7 @@
   </a>
 </div>
 
-![CodeJudge Banner](https://github.com/hariome62014/OJ_Project/blob/main/frontend/src/assets/Screenshot%202025-05-28%20133933.png)  
+![CodeJudge Banner](https://github.com/hariome62014/OJ_Project/blob/main/frontend/src/assets/Screenshot%202025-06-14%20015224.png)  
 
 
 A **full-featured Online Judge** for C++ submissions with role-based authentication (Admin/Participant), real-time code execution, and problem management—inspired by Leetcode.
@@ -57,15 +57,15 @@ A **full-featured Online Judge** for C++ submissions with role-based authenticat
 | Authentication  | JWT, Bcrypt                       |
 | Database        | MongoDB (Mongoose ODM)            |
 | Execution       | Docker API, Node.js worker threads|
-| Deployment      | AWS EC2 (or Render)               |
+| Deployment      | AWS EC2              |
 
 ## 📸 Screenshots
 
-| ![Admin Dashboard](https://github.com/hariome62014/OJ_Project/blob/main/frontend/src/assets/Screenshot%202025-05-28%20134036.png) | ![Learner's Dashboard](https://github.com/hariome62014/OJ_Project/blob/main/frontend/src/assets/Screenshot%202025-05-28%20134530.png) |
+| ![Admin ProblemList Page](https://github.com/hariome62014/OJ_Project/blob/main/frontend/src/assets/Screenshot%202025-06-14%20015310.png) | ![Learner's ProblemList Page](https://github.com/hariome62014/OJ_Project/blob/main/frontend/src/assets/Screenshot%202025-06-14%20015345.png) |
 |------------------------------------------------------------------------------|-----------------------------------------------------------------------------------|
-| **Admin Dashboard**                                                          | **Learner's Dashboard**                                                     |
+| **Admin ProblemList Page**                                                          | **Learner's ProblemList Page**                                                     |
 
-| ![Problem Solving Interface](https://github.com/hariome62014/OJ_Project/blob/main/frontend/src/assets/Screenshot%202025-05-28%20135622.png) | ![Submission Result](https://github.com/hariome62014/OJ_Project/blob/main/frontend/src/assets/Screenshot%202025-05-28%20134448.png) |
+| ![Problem Solving Interface](https://github.com/hariome62014/OJ_Project/blob/main/frontend/src/assets/Screenshot%202025-06-14%20015409.png) | ![Submission Result](https://github.com/hariome62014/OJ_Project/blob/main/frontend/src/assets/Screenshot%202025-06-14%20020953.png) |
 |------------------------------------------------------------------------------|-----------------------------------------------------------------------------------|
 | **Problem Solving Interface**                                                          | **Submission Result**                                                     |                                                     |
 
