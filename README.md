@@ -1,12 +1,14 @@
-# CodeJudge - Leetcode-style Online Judge (MERN Stack)
+# CodeServ: Online Judge (MERN Stack)
 
 ## 🎥 Demo Walkthrough
 
 <div align="center">
-  <a href="https://res.cloudinary.com/djsy3fc1j/video/upload/v1748435076/eknvlfgxjvnjd886xtmf.mp4">
+  <a href="https://loom.com/share/folder/23c72fe38b844f98ba0b28ff09a2bfbe">
     <img src="https://img.shields.io/badge/Watch_Demo-FF0000?style=for-the-badge&logo=videocam&logoColor=white" alt="Watch Demo" height="40">
   </a>
-
+  <a href="https://your-website-link-here.com" target="_blank">
+    <img src="https://img.shields.io/badge/Visit_Website-4285F4?style=for-the-badge&logo=google-chrome&logoColor=white" alt="Visit Website" height="40">
+  </a>
 </div>
 
 ![CodeJudge Banner](https://github.com/hariome62014/OJ_Project/blob/main/frontend/src/assets/Screenshot%202025-05-28%20133933.png)  
