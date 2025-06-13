@@ -6,7 +6,7 @@
   <a href="https://loom.com/share/folder/23c72fe38b844f98ba0b28ff09a2bfbe">
     <img src="https://img.shields.io/badge/Watch_Demo-FF0000?style=for-the-badge&logo=videocam&logoColor=white" alt="Watch Demo" height="40">
   </a>
-  <a href=" https://code-serv.xyz/">
+  <a href="https://code-serv.xyz/">
     <img src="https://img.shields.io/badge/Visit_Website-4285F4?style=for-the-badge&logo=google-chrome&logoColor=white" alt="Visit Website" height="40">
   </a>
 </div>
