@@ -165,7 +165,6 @@ const ProfileInfo = ({ darkMode, stats }) => {
       // Dispatch the Redux action to update profile picture
 const response = await updateProfilePicture({ token, file });
 
-      toast.success("Profile Picture Updated Successfully");
       
     } catch (error) {
       const errorMessage = error.response?.data?.message || 

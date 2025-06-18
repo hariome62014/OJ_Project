@@ -376,43 +376,51 @@ const HomePage = () => {
       </section>
 
       {/* Stats Section */}
-      <section className={`py-20 ${darkMode ? 'bg-gray-800' : 'bg-gray-100'}`}>
-        <div className="container mx-auto px-4 ">
-          <div className="flex justify-center md:grid-cols-4 gap-24 text-center">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.8 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.5 }}
-              viewport={{ once: true }}
-              className="p-6"
-            >
-              <div className="text-4xl font-bold mb-2 bg-clip-text text-transparent bg-gradient-to-r from-purple-500 to-indigo-500">{stats.totalUsers}</div>
-              <div className={`text-lg ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>Active Users</div>
-            </motion.div>
-            <motion.div
-              initial={{ opacity: 0, scale: 0.8 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.5, delay: 0.1 }}
-              viewport={{ once: true }}
-              className="p-6"
-            >
-              <div className="text-4xl font-bold mb-2 bg-clip-text text-transparent bg-gradient-to-r from-amber-500 to-pink-500">{stats.totalProblems}</div>
-              <div className={`text-lg ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>Coding Problems</div>
-            </motion.div>
-          
-            <motion.div
-              initial={{ opacity: 0, scale: 0.8 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.5, delay: 0.3 }}
-              viewport={{ once: true }}
-              className="p-6"
-            >
-              <div className="text-4xl font-bold mb-2 bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-cyan-500">{stats.totalSubmissions}</div>
-              <div className={`text-lg ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>Submissions</div>
-            </motion.div>
-          </div>
+     <section className={`py-20 ${darkMode ? 'bg-gray-800' : 'bg-gray-100'}`}>
+  <div className="container mx-auto px-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:flex justify-center gap-10 md:gap-24 text-center">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.8 }}
+        whileInView={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.5 }}
+        viewport={{ once: true }}
+        className="p-6"
+      >
+        <div className="text-4xl font-bold mb-2 bg-clip-text text-transparent bg-gradient-to-r from-purple-500 to-indigo-500">
+          {stats.totalUsers}
         </div>
-      </section>
+        <div className={`text-lg ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>Active Users</div>
+      </motion.div>
+
+      <motion.div
+        initial={{ opacity: 0, scale: 0.8 }}
+        whileInView={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.5, delay: 0.1 }}
+        viewport={{ once: true }}
+        className="p-6"
+      >
+        <div className="text-4xl font-bold mb-2 bg-clip-text text-transparent bg-gradient-to-r from-amber-500 to-pink-500">
+          {stats.totalProblems}
+        </div>
+        <div className={`text-lg ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>Coding Problems</div>
+      </motion.div>
+
+      <motion.div
+        initial={{ opacity: 0, scale: 0.8 }}
+        whileInView={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.5, delay: 0.3 }}
+        viewport={{ once: true }}
+        className="p-6"
+      >
+        <div className="text-4xl font-bold mb-2 bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-cyan-500">
+          {stats.totalSubmissions}
+        </div>
+        <div className={`text-lg ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>Submissions</div>
+      </motion.div>
+    </div>
+  </div>
+</section>
+
 
       {/* CTA Section */}
       <section className="py-20">

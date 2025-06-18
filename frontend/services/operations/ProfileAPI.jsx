@@ -200,8 +200,15 @@ export const updateProfilePicture = async ({token, file}) => {
       }
     );
 
+    console.log("Response:::",response)
    
+    if(response) {
 
+            toast.success("Profile Picture Updated Successfully");
+
+    }
+   
+    
 
     const imageUrl = response.data.image;
     
@@ -215,6 +222,7 @@ export const updateProfilePicture = async ({token, file}) => {
     return { success: true, imageUrl };
 
   } catch (error) {
+    console.log("Error::",error)
     const errorMessage = error.response?.data?.message || 
                        "An error occurred while updating the profile picture2";
     toast.error(errorMessage);
