@@ -108,76 +108,76 @@ export const fetchProfileData = async ({ userId, token }) => {
   }
 };
 
-// export const fetchStats = createAsyncThunk(
-//   'profile/stats',
+export const fetchStats = createAsyncThunk(
+  'profile/stats',
 
-//   async (dispatch) => {
-//       try {
-//       // console.log("APIURL::",`${profileEndpoints.GET_USER_DETAILS_API}/data/${userId}`)
-//       const response = await apiConnector(
-//         "GET",
-//         `${profileEndpoints.PROFILE_BASE_API}/stats`,
-//         null,
-//        null
-//       );
+  async (dispatch) => {
+      try {
+      // console.log("APIURL::",`${profileEndpoints.GET_USER_DETAILS_API}/data/${userId}`)
+      const response = await apiConnector(
+        "GET",
+        `${profileEndpoints.PROFILE_BASE_API}/stats`,
+        null,
+       null
+      );
 
-//       // if (!response.data) {
-//       //   throw new Error("No profile data received");
-//       // }
+      // if (!response.data) {
+      //   throw new Error("No profile data received");
+      // }
 
-//       // console.log("Profile Response::",response.data)
+      // console.log("Profile Response::",response.data)
 
-//       // dispatch(setTotalUsers(response.data.))
+      // dispatch(setTotalUsers(response.data.))
 
     
 
-//       // Transform data if needed
+      // Transform data if needed
 
-//       return response.data;
+      return response.data;
      
-//     } catch (error) {
-//       // console.error(" DATA LOADING ERROR:", error);
-//       const errorMessage = error.response?.data?.message || 
-//                          error.message || 
-//                          "Failed to load  data";
-//       toast.error(errorMessage);
-//       return rejectWithValue(errorMessage);
-//     }
-//   }
-// );
+    } catch (error) {
+      // console.error(" DATA LOADING ERROR:", error);
+      const errorMessage = error.response?.data?.message || 
+                         error.message || 
+                         "Failed to load  data";
+      toast.error(errorMessage);
+      return rejectWithValue(errorMessage);
+    }
+  }
+);
 
 
 
 //updateProfilePicture
 
 
-export const fetchStats = async ({ token }) => {
-  try {
-    const response = await apiConnector(
-      "GET",
-      `${profileEndpoints.PROFILE_BASE_API}/stats`,
-      null,
-     null
-    );
+// export const fetchStats = async ({ token }) => {
+//   try {
+//     const response = await apiConnector(
+//       "GET",
+//       `${profileEndpoints.PROFILE_BASE_API}/stats`,
+//       null,
+//      null
+//     );
 
-    if (!response.data) {
-      throw new Error("No stats data received");
-    }
+//     if (!response.data) {
+//       throw new Error("No stats data received");
+//     }
 
-    // console.log("Stats Response::", response.data);
+//     // console.log("Stats Response::", response.data);
 
-    // Transform data and return with defaults
-    return response.data;
+//     // Transform data and return with defaults
+//     return response.data;
     
-  } catch (error) {
-    // console.error("STATS DATA LOADING ERROR:", error);
-    const errorMessage = error.response?.data?.message || 
-                       error.message || 
-                       "Failed to load stats data";
-    toast.error(errorMessage);
-    throw error; // Throw to be handled by the caller
-  }
-};
+//   } catch (error) {
+//     // console.error("STATS DATA LOADING ERROR:", error);
+//     const errorMessage = error.response?.data?.message || 
+//                        error.message || 
+//                        "Failed to load stats data";
+//     toast.error(errorMessage);
+//     throw error; // Throw to be handled by the caller
+//   }
+// };
 
 
 
