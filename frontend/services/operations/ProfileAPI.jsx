@@ -151,7 +151,7 @@ export const fetchProfileData = async ({ userId, token }) => {
 //updateProfilePicture
 
 
-export const fetchStats = async ({ token }) => {
+export const fetchStats = async () => {
   try {
     const response = await apiConnector(
       "GET",
