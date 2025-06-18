@@ -141,7 +141,6 @@ if (shouldHideFooter) return null;
               ${darkMode ? 'text-yellow-400' : 'text-yellow-500'}
             `} />
             <span>CodeServ</span>
-            <span>CodeServ</span>
           </Link>
 
           {/* Desktop Navigation */}
