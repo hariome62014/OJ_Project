@@ -148,10 +148,9 @@ export const fetchStats = createAsyncThunk(
 
 
 
-//updateProfilePicture
 
 
-<<<<<<< HEAD:frontend/services/operations/ProfileAPI.jsX
+
 // export const fetchStats = async ({ token }) => {
 //   try {
 //     const response = await apiConnector(
@@ -160,16 +159,6 @@ export const fetchStats = createAsyncThunk(
 //       null,
 //      null
 //     );
-=======
-export const fetchStats = async () => {
-  try {
-    const response = await apiConnector(
-      "GET",
-      `${profileEndpoints.PROFILE_BASE_API}/stats`,
-      null,
-     null
-    );
->>>>>>> 5eb6caf797271e1527891a03158614ba9a80c26e:frontend/services/operations/ProfileAPI.jsx
 
 //     if (!response.data) {
 //       throw new Error("No stats data received");
@@ -190,6 +179,8 @@ export const fetchStats = async () => {
 //   }
 // };
 
+
+//updateProfilePicture
 
 
 export const updateProfilePicture = async ({token, file}) => {
@@ -225,7 +216,7 @@ export const updateProfilePicture = async ({token, file}) => {
 
   } catch (error) {
     const errorMessage = error.response?.data?.message || 
-                       "An error occurred while updating the profile picture";
+                       "An error occurred while updating the profile picture2";
     toast.error(errorMessage);
     return { success: false, error: errorMessage };
   } finally {

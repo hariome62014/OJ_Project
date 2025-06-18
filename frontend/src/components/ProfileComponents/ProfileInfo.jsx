@@ -170,7 +170,7 @@ const response = await updateProfilePicture({ token, file });
     } catch (error) {
       const errorMessage = error.response?.data?.message || 
                          error.message || 
-                         "An error occurred while updating the profile picture";
+                         "An error occurred while updating the profile picture1";
       toast.error(errorMessage);
     }
   };
