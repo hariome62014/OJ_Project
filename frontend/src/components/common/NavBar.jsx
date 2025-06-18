@@ -140,7 +140,7 @@ if (shouldHideFooter) return null;
             <FaCode className={`
               ${darkMode ? 'text-yellow-400' : 'text-yellow-500'}
             `} />
-            <span>CodeJudge</span>
+            <span>CodeServ</span>
           </Link>
 
           {/* Desktop Navigation */}
@@ -187,7 +187,7 @@ if (shouldHideFooter) return null;
           </nav>
 
           {/* Right Side Actions */}
-          <div className={`flex items-center ${user ? 'space-x-6 px-2.5' : 'space-x-2 px-1'}`}>
+          <div className={`flex items-center ${user ? 'space-x-6 px-0.5' : 'space-x-1'}`}>
             {/* Theme Toggle */}
             <button 
               onClick={handleThemeToggle}
@@ -286,7 +286,7 @@ if (shouldHideFooter) return null;
                     }
                   `}
                 >
-                  <FaSignInAlt className="inline mr-1" /> Login
+                  <FaSignInAlt className="inline" /> Login
                 </Link>
                 {/* <Link 
                   to="/register" 

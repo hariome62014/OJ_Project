@@ -57,7 +57,7 @@ const LearnerHomePage = () => {
       icon: <FaChartLine className="w-6 h-6" />,
       title: "Track Progress",
       description: "Monitor your learning journey with detailed analytics",
-      link: "/progress",
+      link: "/profile",
       color: "from-emerald-500 to-teal-500"
     }
   ];

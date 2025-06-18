@@ -134,7 +134,7 @@ const LoginPage = () => {
             </div>
           </div>
 
-          <div className="flex items-center">
+          {/* <div className="flex items-center">
             <input
               id="remember-me"
               name="remember-me"
@@ -145,7 +145,7 @@ const LoginPage = () => {
             <label htmlFor="remember-me" className="ml-2 block text-xs sm:text-sm">
               Remember me
             </label>
-          </div>
+          </div> */}
 
           <div>
             <button

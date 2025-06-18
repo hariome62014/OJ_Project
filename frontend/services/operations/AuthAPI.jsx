@@ -4,6 +4,12 @@ import { setUser } from "../../src/slices/ProfileSlice"
 import { endpoints } from "../apis"
 import {apiConnector} from "../apiConnector"
 import {setProgress} from "../../src/slices/LoadingBarSlice"
+import {
+  setUsername,
+  setUsernameChecking,
+  setUsernameUnique,
+  setUsernameError
+} from "../../src/slices/UserNameSlice";
 
 const {
   SENDOTP_API,
@@ -11,6 +17,7 @@ const {
   LOGIN_API,
   RESETPASSTOKEN_API,
   RESETPASSWORD_API,
+  USERNAME_API
 } = endpoints
 
 export function sendOtp(email, navigate) {
@@ -35,7 +42,7 @@ export function sendOtp(email, navigate) {
       navigate("/verify-otp")
     } catch (error) {
       // console.log("SENDOTP API ERROR............", error)
-      toast.error(error?.response?.data?.message)
+        toast.error(error.response.data.message || "OTO sent Failed")
       dispatch(setProgress(100));
     }
     dispatch(setLoading(false))
@@ -76,7 +83,7 @@ export function signUp(
     } catch (error) {
       dispatch(setProgress(100));
       // console.log("SIGNUP API ERROR............", error)
-      toast.error("Signup Failed")
+        toast.error(error.response.data.message || "Signup Failed")
       navigate("/signup")
     }
     dispatch(setLoading(false))
@@ -115,7 +122,7 @@ export function login(email, password, navigate) {
     } catch (error) {
       dispatch(setProgress(100))
       // console.log("LOGIN API ERROR............", error.response)
-      toast.error(error.response.message|| "Something went wrong")
+       toast.error(error.response.data.message || "Login Failed")
     }
     dispatch(setLoading(false))
     toast.dismiss(toastId)
@@ -207,9 +214,33 @@ export function forgotPassword(email,setEmailSent) {
       toast.success("Reset Email Sent");
       setEmailSent(true)
     } catch (error) {
-      console.log("FORGOTPASSWORD ERROR............", error)
+      toast.error(error)
+      // console.log("FORGOTPASSWORD ERROR............", error)
     }
     // toast.dismiss(toastId)
     dispatch(setLoading(false))
   }
 }
+
+
+export function checkUsernameUnique(value, setIsUnique) {
+  // console.log("Username:",value)
+  const username = value;
+  return async (dispatch) => {
+    dispatch(setUsernameChecking(true));
+    try {
+      const { data } =  await apiConnector("POST", USERNAME_API, 
+        {username},null,null
+      )
+      dispatch(setUsernameUnique(data.unique));
+              if (setIsUnique) setIsUnique(data.unique); // Optionally update local state
+
+      return data;
+    } catch (error) {
+      dispatch(setUsernameError(error.message || 'Error checking username'));
+      if (setIsUnique) setIsUnique(false);
+    }
+    dispatch(setUsernameChecking(false));
+  };
+}
+

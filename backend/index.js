@@ -8,6 +8,7 @@ const problemRoutes = require('./routes/Problem')
 const testcasesRoutes = require('./routes/TestCases')
 const submissionRoutes  = require('./routes/Submission')
 const CodeReviewRoutes = require('./routes/CodeReview')
+const profileRoutes = require('./routes/Profile')
 const cors = require("cors");
 
 
@@ -21,7 +22,7 @@ const corsOptions = {
     ? JSON.parse(process.env.CORS_ORIGIN) 
     : "http://localhost:3000",
   credentials: true,
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
   optionsSuccessStatus: 200 // For legacy browser support
 };
@@ -38,12 +39,16 @@ app.use(express.urlencoded({ extended: true }));
 
 
 connectDB();
+require("./shared/config/Cloudinary").cloudnairyconnect();
+
+
 
 app.use('/api/v1/auth',userRoutes)
 app.use('/api/v1/problems',problemRoutes)
 app.use('/api/v1/problems/:problemId/test-cases', testcasesRoutes);
 app.use('/api/v1/problems/:problemId/submission',submissionRoutes);
 app.use('/api/v1/problems/analyze',CodeReviewRoutes)
+app.use('/api/v1/profile',profileRoutes)
 
 
 

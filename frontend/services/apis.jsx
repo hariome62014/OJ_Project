@@ -1,7 +1,7 @@
 const BASE_URL = import.meta.env.VITE_API_URL;
 const COMPILER_BASE_API_URL = import.meta.env.VITE_COMPILER_API_URL;
 
-  console.log("COMPILER_BASE_API_URL",COMPILER_BASE_API_URL);
+  // console.log("COMPILER_BASE_API_URL",COMPILER_BASE_API_URL);
 
 
 // AUTH ENDPOINTS
@@ -11,11 +11,13 @@ export const endpoints = {
   LOGIN_API: BASE_URL + "/auth/login",
   RESETPASSTOKEN_API: BASE_URL + "/auth/reset-password-token",
   RESETPASSWORD_API: BASE_URL + "/auth/reset-password",
+  USERNAME_API:BASE_URL  + "/auth/check-username"
 };
 
 // PROFILE ENDPOINTS
 export const profileEndpoints = {
   GET_USER_DETAILS_API: BASE_URL + "/profile/getUserDetails",
+  PROFILE_BASE_API:BASE_URL + "/profile"
 };
 
 // SETTINGS PAGE API

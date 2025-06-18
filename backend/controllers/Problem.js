@@ -13,7 +13,7 @@ const formatProblemResponse = (problem, showAllTestCases = false) => {
   // Ensure testCases exists and is an array
   response.testCases = response.testCases || [];
 
-  console.log("Reached formatProblemResponse")
+  // console.log("Reached formatProblemResponse")
   
   if (!showAllTestCases) {
     response.testCases = response.testCases.filter(tc => tc.isPublic);
@@ -109,8 +109,6 @@ exports.createProblem = async (req, res, next) => {
 
 exports.getAllProblems = async (req, res, next) => {
   try {
-    // console.log("Reached getAllProblems controller");
-
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
     const skip = (page - 1) * limit;
@@ -121,20 +119,16 @@ exports.getAllProblems = async (req, res, next) => {
       filter.difficulty = req.query.difficulty;
     }
 
-    // Get problems with pagination
-const [problems, total] = await Promise.all([
-  Problem.find(filter)
-    .sort({ createdAt: -1 })
-    .skip(skip)
-    .limit(limit)
-    .populate('testCases')
-    .lean(),  // Optional: converts to plain JS objects
-  Problem.countDocuments(filter)
-]);
-
-// console.log("Problems:::6",problems)
-
-    
+    // Get problems with pagination - exclude testCases from the initial query
+    const [problems, total] = await Promise.all([
+      Problem.find(filter)
+        .select('-testCases') // Exclude testCases field
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .lean(),
+      Problem.countDocuments(filter)
+    ]);
 
     // Check if user is authenticated
     if (req.user) {
@@ -154,14 +148,13 @@ const [problems, total] = await Promise.all([
       );
 
       // Add solved status to each problem
-    const problemsWithStatus = problems.map(problem => {
-  const problemObj = problem.toObject();
-  problemObj.solved = solvedProblemIds.has(problem._id.toString());
-  problemObj.tags = problemObj.tags || []; // Ensure tags is always an array
-  return problemObj;
-});
-
-      // console.log("problemsWithStatus",problems)
+      const problemsWithStatus = problems.map(problem => {
+        return {
+          ...problem,
+          solved: solvedProblemIds.has(problem._id.toString()),
+          tags: problem.tags || [] // Ensure tags is always an array
+        };
+      });
 
       return res.json({
         success: true,
@@ -231,7 +224,7 @@ exports.getProblemById = async (req, res, next) => {
       data: problem
     });
   } catch (err) {
-    console.log("Error on getProblemById",err);
+    // console.log("Error on getProblemById",err);
     next(err);
   }
 };

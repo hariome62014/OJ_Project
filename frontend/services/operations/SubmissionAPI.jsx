@@ -2,47 +2,52 @@
 import { toast } from 'react-hot-toast';
 import { apiConnector } from '../apiConnector';
 import { setSubmissionLoading, setSubmissionError, addSubmission } from '../../src/slices/SubmissionSlice';
+import { submissionEndpoint } from '../apis';
+import { setUser } from '../../src/slices/ProfileSlice';
 
-import  {submissionEndpoint} from '../apis'
+const { SUBMIT_SOLUTION_BASE_URL, COMPILER_BASE_URL } = submissionEndpoint;
 
-const {SUBMIT_SOLUTION_BASE_URL,COMPILER_BASE_URL} = submissionEndpoint;
-
-
-
-export function submitSolution({ problemId, code, language,token,Sub_type }) {
-  return async (dispatch) => {
-    // const toastId = toast.loading("Submitting your solution...");
+export function submitSolution({ problemId, code, language, token, Sub_type }) {
+  return async (dispatch, getState) => {
     dispatch(setSubmissionLoading(true));
 
     try {
-      console.log("SUBMIT_SOLUTION_API",token)
       const response = await apiConnector(
         "POST",
         `${COMPILER_BASE_URL}/${problemId}/submission/submit`,
-        { problemId, code, language,Sub_type },
-        { Authorization: `Bearer ${token}`}, 
+        { problemId, code, language, Sub_type },
+        { Authorization: `Bearer ${token}` },
         null
       );
 
-      console.log("SUBMIT SOLUTION API RESPONSE:", response.data);
+      // console.log("SUBMIT SOLUTION API RESPONSE:", response.data);
 
       if (!response.data.success) {
         throw new Error(response.data.message);
       }
 
+      // Dispatch submission data
       dispatch(addSubmission(response.data));
-      // toast.success("Solution submitted successfully!");
-      return response.data; // Optional: Return for immediate use
+
+      // If the problem was newly solved, update user's solvedProblems
+      if (response.data.newlySolved) {
+        const currentUser = getState().profile.user; // Get current user from Redux state
+        const updatedUser = {
+          ...currentUser,
+          solvedProblems: [...currentUser.solvedProblems, response.data.newlySolved],
+        };
+        dispatch(setUser(updatedUser)); // Update Redux user state
+      }
+
+      return response.data;
     } catch (error) {
-      // console.error("SUBMIT SOLUTION ERROR:", error);
       const errorMessage = error.response?.data?.message || error.message || "Submission failed";
       dispatch(setSubmissionError(errorMessage));
       toast.error(errorMessage);
-      throw error; // Re-throw for component-level handling
-    } 
-    // finally {
+      throw error;
+    } finally {
       dispatch(setSubmissionLoading(false));
-    // }
+    }
   };
 }
 
@@ -50,11 +55,10 @@ export function submitSolution({ problemId, code, language,token,Sub_type }) {
 
 export function fetchUserSubmissions({ problemId,userId,token }) {
   return async (dispatch) => {
-    // const toastId = toast.loading("Submitting your solution...");
     
 
     try {
-      console.log("User Submission history :",`${SUBMIT_SOLUTION_BASE_URL}/${problemId}/submission/user/${userId}`)
+    
       const response = await apiConnector(
         "POST",
         `${SUBMIT_SOLUTION_BASE_URL}/${problemId}/submission/user/${userId}`,
@@ -102,7 +106,7 @@ export function ReviewCode(code, problemDescription,language) {
       toast.success("Code analysis complete!", { id: toastId });
       return response.data.review; // Return for immediate use if needed
     } catch (error) {
-      console.error("CODE ANALYSIS ERROR:", error);
+      // console.error("CODE ANALYSIS ERROR:", error);
       const errorMessage = error.response?.data?.error || 
                           error.response?.data?.message || 
                           error.message || 

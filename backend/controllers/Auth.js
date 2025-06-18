@@ -96,7 +96,7 @@ exports.signup = async (req, res) => {
       message: "User registered successfully",
     });
   } catch (error) {
-    console.error(error);
+    // console.error(error);
     return res.status(500).json({
       success: false,
       message: `User cannot be registered. Please try again.${error}`,
@@ -172,7 +172,7 @@ exports.login = async (req, res) => {
       });
     }
   } catch (error) {
-    console.error(error);
+    // console.error(error);
     // Return 500 Internal Server Error status code with error message
     return res.status(500).json({
       success: false,
@@ -222,10 +222,20 @@ exports.sendotp = async (req, res) => {
     res.status(200).json({
       success: true,
       message: `OTP Sent Successfully`,
-      otp,
     });
   } catch (error) {
     // console.log(error.message);
     return res.status(500).json({ success: false, error: error.message });
   }
+};
+
+
+exports.checkUsernameUnique = async (req, res) => {
+  // console.log("Username::",req.body)
+  const { username } = req.body;
+  
+  if (!username) return res.status(400).json({ unique: false, message: 'Username required' });
+
+  const exists = await User.exists({ username: new RegExp('^' + username + '$', 'i') });
+  res.json({ unique: !exists });
 };

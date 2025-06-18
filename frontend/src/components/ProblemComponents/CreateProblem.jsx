@@ -125,7 +125,7 @@ const CreateProblemPage = () => {
           }
         } catch (error) {
           lastError = error.message;
-          console.error("Manual test case addition failed:", error);
+          // console.error("Manual test case addition failed:", error);
         }
       }
 
@@ -141,7 +141,7 @@ const CreateProblemPage = () => {
           }
         } catch (error) {
           lastError = error.message;
-          console.error("Test case file upload failed:", error);
+          // console.error("Test case file upload failed:", error);
         }
       }
 
@@ -151,7 +151,7 @@ const CreateProblemPage = () => {
 
       return result;
     } catch (error) {
-      console.error("Problem creation failed:", error);
+      // console.error("Problem creation failed:", error);
       throw error;
     }
   };

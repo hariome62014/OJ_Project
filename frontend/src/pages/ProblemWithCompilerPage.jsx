@@ -4,7 +4,7 @@ import { useSelector, useDispatch } from "react-redux";
 import {
   FaChevronLeft, FaPlay, FaCheck, FaCode, FaFileAlt, FaTerminal, FaLightbulb,
   FaHistory, FaExpand, FaCompress, FaCopy, FaShare, FaBookmark, FaThumbsUp,
-  FaRegThumbsUp, FaBolt, FaClock, FaUser, FaRegBookmark, FaRegCopy, FaTimes
+  FaRegThumbsUp, FaBolt, FaClock, FaUser, FaRegBookmark, FaRegCopy, FaTimes,FaMoon,FaSun
 } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
 import { fetchProblemById } from "../../services/operations/ProblemAPI";
@@ -18,7 +18,7 @@ import PanelTabButton from "../components/compilerComponents/PanelTabButton";
 import RunResultView from "../components/compilerComponents/RunResultView";
 import SubmitResultView from "../components/compilerComponents/SubmitResultView";
 import { fetchUserSubmissions } from "../../services/operations/SubmissionAPI";
-
+import { toggleTheme } from "../slices/ThemeSlice";
 
 const ProblemPage = () => {
   const { problemId } = useParams();
@@ -37,67 +37,110 @@ const ProblemPage = () => {
   const [testCases, setTestCases] = useState([]);
   const [customInput, setCustomInput] = useState("");
   const [selectedTestCase, setSelectedTestCase] = useState(0);
-  const [consoleTab, setConsoleTab] = useState("run"); // 'run' or 'submit'
+  const [consoleTab, setConsoleTab] = useState("run");
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [isLiked, setIsLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(0);
   const [runResult, setRunResult] = useState(null);
   const [submitResult, setSubmitResult] = useState(null);
   const [submissionHistory, setSubmissionHistory] = useState([]);
-  const [showResultPanel, setShowResultPanel] = useState(false);
+  const [showResultPanel, setShowResultPanel] = useState(true);
+  const [panelHeight, setPanelHeight] = useState(350);
+  const [isDragging, setIsDragging] = useState(false);
+  const [showReviewModal, setShowReviewModal] = useState(false);
+
 
   const editorRef = useRef(null);
   const outputRef = useRef(null);
+  const dragStartYRef = useRef(0);
+  const dragStartHeightRef = useRef(0);
   const token = useSelector((state) => state.auth.token);
-  const user = useSelector((state)=>state.profile.user)
+  const user = useSelector((state) => state.profile.user);
 
 
-
-  // Fetch problem details
-useEffect(() => {
-  const fetchData = async () => {
-    try {
-      // Fetch problem data
-      await dispatch(fetchProblemById(problemId,token));
-      
-      // Set default code template
-      setCode(getDefaultCodeTemplate(language));
-      
-      // Only fetch submissions if user is logged in
-      if (user) {
-        try {
-          // console.log("Ready for fetching Submission history...",user._id)
-          const submissionResult = await dispatch(
-            fetchUserSubmissions({ 
-              problemId, 
-              userId: user._id,
-              token
-            })
-          ); // unwrap() gives you the actual payload or throws an error
-
-          // console.log("Sunmission Result on frontend::",submissionResult)
-          
-          setSubmissionHistory(submissionResult);
-        } catch (submissionError) {
-          // console.error('Failed to fetch submissions:', submissionError);
-          // You might want to set some error state here
-          setSubmissionHistory([]); // Reset or keep previous state as per your needs
-        }
-      }
-    } catch (problemError) {
-      // console.error('Failed to fetch problem:', problemError);
-      // Handle problem fetch error (maybe show a toast or set error state)
+  useEffect(() => {
+    if (isDragging) {
+      document.body.classList.add('no-select');
+      document.addEventListener('mousemove', handleDragMove);
+      document.addEventListener('mouseup', handleDragEnd);
+      document.addEventListener('touchmove', handleTouchMove, { passive: false });
+      document.addEventListener('touchend', handleDragEnd);
+    } else {
+      document.body.classList.remove('no-select');
+      document.removeEventListener('mousemove', handleDragMove);
+      document.removeEventListener('mouseup', handleDragEnd);
+      document.removeEventListener('touchmove', handleTouchMove);
+      document.removeEventListener('touchend', handleDragEnd);
     }
+
+    return () => {
+      document.body.classList.remove('no-select');
+      document.removeEventListener('mousemove', handleDragMove);
+      document.removeEventListener('mouseup', handleDragEnd);
+      document.removeEventListener('touchmove', handleTouchMove);
+      document.removeEventListener('touchend', handleDragEnd);
+    };
+  }, [isDragging]);
+
+  const handleDragStart = (e) => {
+    setIsDragging(true);
+    dragStartYRef.current = e.clientY || e.touches[0].clientY;
+    dragStartHeightRef.current = panelHeight;
+    e.preventDefault();
   };
 
-  fetchData();
-}, [problemId, language, dispatch, user, token,submitResult,activeTab]); // Added token to dependencies
+  const handleDragMove = (e) => {
+    if (!isDragging) return;
+    const y = e.clientY;
+    const dy = dragStartYRef.current - y;
+    const newHeight = dragStartHeightRef.current + dy;
+    setPanelHeight(Math.max(100, Math.min(window.innerHeight - 100, newHeight)));
+  };
 
-  // Default code templates
+  const handleTouchMove = (e) => {
+    if (!isDragging) return;
+    const y = e.touches[0].clientY;
+    const dy = dragStartYRef.current - y;
+    const newHeight = dragStartHeightRef.current + dy;
+    setPanelHeight(Math.max(100, Math.min(window.innerHeight - 100, newHeight)));
+    e.preventDefault();
+  };
+
+  const handleDragEnd = () => {
+    setIsDragging(false);
+  };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        await dispatch(fetchProblemById(problemId, token));
+        setCode(getDefaultCodeTemplate(language));
+        
+        if (user) {
+          try {
+            const submissionResult = await dispatch(
+              fetchUserSubmissions({ 
+                problemId, 
+                userId: user._id,
+                token
+              })
+            );
+            setSubmissionHistory(submissionResult);
+          } catch (submissionError) {
+            setSubmissionHistory([]);
+          }
+        }
+      } catch (problemError) {
+        // console.error('Failed to fetch problem:', problemError);
+      }
+    };
+
+    fetchData();
+  }, [problemId, language, dispatch, user, token, activeTab]);
+
   const getDefaultCodeTemplate = (lang) => {
-
-       if (code && code.trim() !== '') {
-        return code;
+    if (code && code.trim() !== '') {
+      return code;
     }
     const templates = {
       cpp: `#include <iostream>\n\nusing namespace std;\n\n${
@@ -111,14 +154,12 @@ useEffect(() => {
     return templates[lang] || "";
   };
 
-  // Handle language change
   const handleLanguageChange = (e) => {
     const newLanguage = e.target.value;
     setLanguage(newLanguage);
     localStorage.setItem(`lastLanguage_${problemId}`, newLanguage);
   };
 
-  // Handle editor mount
   const handleEditorDidMount = (editor, monaco) => {
     editorRef.current = editor;
     editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS, () => {
@@ -126,202 +167,186 @@ useEffect(() => {
     });
   };
 
-  // Handle code execution
-// Assume: submitSolution is a redux-thunk action that returns the backend response
+  const ERROR_PRIORITY = [
+    'compilation',
+    'segmentation',
+    'memory',
+    'timeout',
+    'runtime'
+  ];
 
-const ERROR_PRIORITY = [
-  'compilation',
-  'segmentation',
-  'memory',
-  'timeout',
-  'runtime'
-];
+  const STATUS_MAP = {
+    compilation: "Compilation Error",
+    segmentation: "Segmentation Fault",
+    memory: "Memory Limit Exceeded",
+    timeout: "Time Limit Exceeded",
+    runtime: "Runtime Error"
+  };
 
-const STATUS_MAP = {
-  compilation: "Compilation Error",
-  segmentation: "Segmentation Fault",
-  memory: "Memory Limit Exceeded",
-  timeout: "Time Limit Exceeded",
-  runtime: "Runtime Error"
-};
-
-function getStatusFromResults(results, allTestCasesPassed) {
-  for (const type of ERROR_PRIORITY) {
-    if (results.some(r => r.errorType === type)) return STATUS_MAP[type];
-  }
-  return allTestCasesPassed ? "Accepted" : "Wrong Answer";
-}
-
-const handleRun = async () => {
-  console.log("Hello reached" )
-  if (!code.trim()) {
-    toast.error("Please write some code before running");
-    return;
-  }
-  setShowResultPanel(true);
-  setConsoleTab("run");
-  setIsRunning(true);
-  setOutput("Running your code...");
-  const toastId = toast.loading("Testing your solution...");
-
-  try {
-    const testResultAction = await dispatch(
-      submitSolution({ problemId, language, code, token, Sub_type: "run" })
-    );
-    console.log("TestResult after run :::",testResultAction)
-    const testResult = testResultAction.payload || testResultAction; // adapt to your redux setup
-
-    console.log("TestResult",testResult)
-
-    toast.dismiss(toastId);
-
-    // Determine status
-    const status = getStatusFromResults(testResult.results, testResult.allTestCasesPassed);
-
-    // Output message
-    let output = "";
-    switch (status) {
-      case "Accepted":
-        output = "✅ All test cases passed!";
-        break;
-      case "Compilation Error":
-        output = "❌ Compilation error";
-        break;
-      case "Segmentation Fault":
-        output = "💥 Segmentation Fault";
-        break;
-      case "Memory Limit Exceeded":
-        output = "🚫 Memory Limit Exceeded";
-        break;
-      case "Time Limit Exceeded":
-        output = "⏱️ Time Limit Exceeded";
-        break;
-      case "Runtime Error":
-        output = "💥 Runtime Error";
-        break;
-      default:
-        output = `❌ ${testResult.totalTestCases - testResult.passedTestCases} test case(s) failed`;
+  function getStatusFromResults(results, allTestCasesPassed) {
+    for (const type of ERROR_PRIORITY) {
+      if (results.some(r => r.errorType === type)) return STATUS_MAP[type];
     }
-
-    const result = {
-      status,
-      runtime: testResult.maxExecutionTime ? testResult.maxExecutionTime.toFixed(2) + "s" : "N/A",
-      memory: testResult.maxMemoryUsage ? testResult.maxMemoryUsage.toFixed(2) + "MB" : "N/A",
-      passed: testResult.passedTestCases,
-      total: testResult.totalTestCases,
-      testCases: testResult.results || [],
-      output,
-    };
-
-    setRunResult(result);
-    setTestCases(result.testCases);
-
-    // Show appropriate toast message
-    if (status === "Accepted") toast.success("All test cases passed!");
-    else toast.error(output);
-
-  } catch (err) {
-    toast.dismiss(toastId);
-    toast.error(err.message || "Testing failed. Please try again.");
-    setRunResult({
-      status: "Error",
-      output: `Error: ${err.message}`
-    });
-  } finally {
-    setIsRunning(false);
+    return allTestCasesPassed ? "Accepted" : "Wrong Answer";
   }
-};
 
-const handleSubmit = async () => {
-  if (!code.trim()) {
-    toast.error("Please write some code before submitting");
-    return;
-  }
-  setShowResultPanel(true);
-  setConsoleTab("submit");
-  setIsSubmitting(true);
-  const toastId = toast.loading("Submitting your solution...");
-
-  try {
-    const submissionAction = await dispatch(
-      submitSolution({ problemId, language, code, token, Sub_type: "submit" })
-    );
-    const submission = submissionAction.payload || submissionAction;
-
-    toast.dismiss(toastId);
-
-    // Determine status
-    const status = getStatusFromResults(submission.results, submission.allTestCasesPassed);
-
-    // Output message
-    let output = "";
-    switch (status) {
-      case "Accepted":
-        output = "✅ All test cases passed!";
-        break;
-      case "Compilation Error":
-        output = "❌ Compilation error";
-        break;
-      case "Segmentation Fault":
-        output = "💥 Segmentation Fault";
-        break;
-      case "Memory Limit Exceeded":
-        output = "🚫 Memory Limit Exceeded";
-        break;
-      case "Time Limit Exceeded":
-        output = "⏱️ Time Limit Exceeded";
-        break;
-      case "Runtime Error":
-        output = "💥 Runtime Error";
-        break;
-      default:
-        output = `❌ ${submission.totalTestCases - submission.passedTestCases} test case(s) failed`;
+  const handleRun = async () => {
+    if (!code.trim()) {
+      toast.error("Please write some code before running");
+      return;
     }
+    setShowResultPanel(true);
+    setConsoleTab("run");
+    setIsRunning(true);
+    setOutput("Running your code...");
+    const toastId = toast.loading("Testing your solution...");
 
-    const result = {
-      status,
-      runtime: submission.maxExecutionTime ? submission.maxExecutionTime.toFixed(2) + "s" : "N/A",
-      memory: submission.maxMemoryUsage ? submission.maxMemoryUsage.toFixed(2) + "MB" : "N/A",
-      passed: submission.passedTestCases,
-      total: submission.totalTestCases,
-      testCases: submission.results || [],
-      output,
-      error: submission.results?.find(t => t.error)?.error
-    };
+    try {
+      const testResultAction = await dispatch(
+        submitSolution({ problemId, language, code, token, Sub_type: "run" })
+      );
+      const testResult = testResultAction.payload || testResultAction;
 
-    setSubmitResult(result);
-    setTestCases(result.testCases);
+      toast.dismiss(toastId);
+      const status = getStatusFromResults(testResult.results, testResult.allTestCasesPassed);
 
-    // Show appropriate toast message
-    if (status === "Accepted") toast.success("All test cases passed!");
-    else toast.error(output);
+      let output = "";
+      switch (status) {
+        case "Accepted":
+          output = "✅ All test cases passed!";
+          break;
+        case "Compilation Error":
+          output = "❌ Compilation error";
+          break;
+        case "Segmentation Fault":
+          output = "💥 Segmentation Fault";
+          break;
+        case "Memory Limit Exceeded":
+          output = "🚫 Memory Limit Exceeded";
+          break;
+        case "Time Limit Exceeded":
+          output = "⏱️ Time Limit Exceeded";
+          break;
+        case "Runtime Error":
+          output = "💥 Runtime Error";
+          break;
+        default:
+          output = `❌ ${testResult.totalTestCases - testResult.passedTestCases} test case(s) failed`;
+      }
 
-    // Update submission history
-    setSubmissionHistory(prevHistory => [
-      {
-        id: Date.now().toString(),
-        date: new Date().toISOString(),
+      const result = {
         status,
-        runtime: result.runtime,
-        memory: result.memory,
-        language,
-      },
-      ...prevHistory
-    ]);
-  } catch (err) {
-    toast.dismiss(toastId);
-    toast.error(err.message || "Submission failed. Please try again.");
-    setSubmitResult({
-      status: "Error",
-      output: `Error: ${err.message}`,
-      error: err.message
-    });
-  } finally {
-    setIsSubmitting(false);
-  }
-};
+        runtime: testResult.maxExecutionTime ? testResult.maxExecutionTime.toFixed(2) + "s" : "N/A",
+        memory: testResult.maxMemoryUsage ? testResult.maxMemoryUsage.toFixed(2) + "MB" : "N/A",
+        passed: testResult.passedTestCases,
+        total: testResult.totalTestCases,
+        testCases: testResult.results || [],
+        output,
+      };
 
-  // Other helper functions
+      setRunResult(result);
+      setTestCases(result.testCases);
+
+      if (status === "Accepted") toast.success("All test cases passed!");
+      else toast.error(output);
+
+    } catch (err) {
+      toast.dismiss(toastId);
+      toast.error(err.message || "Testing failed. Please try again.");
+      setRunResult({
+        status: "Error",
+        output: `Error: ${err.message}`
+      });
+    } finally {
+      setIsRunning(false);
+    }
+  };
+
+  const handleSubmit = async () => {
+    if (!code.trim()) {
+      toast.error("Please write some code before submitting");
+      return;
+    }
+    setShowReviewModal(false)
+    setShowResultPanel(true);
+    setConsoleTab("submit");
+    setIsSubmitting(true);
+    const toastId = toast.loading("Submitting your solution...");
+
+    try {
+      const submissionAction = await dispatch(
+        submitSolution({ problemId, language, code, token, Sub_type: "submit" })
+      );
+      const submission = submissionAction.payload || submissionAction;
+
+      toast.dismiss(toastId);
+      const status = getStatusFromResults(submission.results, submission.allTestCasesPassed);
+
+      let output = "";
+      switch (status) {
+        case "Accepted":
+          output = "✅ All test cases passed!";
+          break;
+        case "Compilation Error":
+          output = "❌ Compilation error";
+          break;
+        case "Segmentation Fault":
+          output = "💥 Segmentation Fault";
+          break;
+        case "Memory Limit Exceeded":
+          output = "🚫 Memory Limit Exceeded";
+          break;
+        case "Time Limit Exceeded":
+          output = "⏱️ Time Limit Exceeded";
+          break;
+        case "Runtime Error":
+          output = "💥 Runtime Error";
+          break;
+        default:
+          output = `❌ ${submission.totalTestCases - submission.passedTestCases} test case(s) failed`;
+      }
+
+      const result = {
+        status,
+        runtime: submission.maxExecutionTime ? submission.maxExecutionTime.toFixed(2) + "s" : "N/A",
+        memory: submission.maxMemoryUsage ? submission.maxMemoryUsage.toFixed(2) + "MB" : "N/A",
+        passed: submission.passedTestCases,
+        total: submission.totalTestCases,
+        testCases: submission.results || [],
+        output,
+        error: submission.results?.find(t => t.error)?.error
+      };
+
+      setSubmitResult(result);
+      setTestCases(result.testCases);
+
+      if (status === "Accepted") toast.success("All test cases passed!");
+      else toast.error(output);
+
+      setSubmissionHistory(prevHistory => [
+        {
+          id: Date.now().toString(),
+          date: new Date().toISOString(),
+          status,
+          runtime: result.runtime,
+          memory: result.memory,
+          language,
+        },
+        ...prevHistory
+      ]);
+    } catch (err) {
+      toast.dismiss(toastId);
+      toast.error(err.message || "Submission failed. Please try again.");
+      setSubmitResult({
+        status: "Error",
+        output: `Error: ${err.message}`,
+        error: err.message
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   const handleCopyCode = () => {
     navigator.clipboard.writeText(code);
     toast.success("Code copied to clipboard!");
@@ -352,6 +377,14 @@ const handleSubmit = async () => {
   const toggleBookmark = () => {
     setIsBookmarked(!isBookmarked);
     toast.success(isBookmarked ? "Removed from bookmarks" : "Added to bookmarks");
+  };
+
+  const handleThemeToggle = (e) => {
+      // console.log("Button clicked", e.target);
+
+        e.stopPropagation();
+       e.preventDefault();
+    dispatch(toggleTheme());
   };
 
   const toggleLike = () => {
@@ -398,55 +431,29 @@ const handleSubmit = async () => {
   const currentResult = consoleTab === "run" ? runResult : submitResult;
 
   return (
-    <div
-      className={`min-h-screen ${
-        darkMode ? "bg-gray-900 text-gray-100" : "bg-gray-50 text-gray-900"
-      }`}
-    >
+    <div className={`min-h-screen ${darkMode ? "bg-gray-900 text-gray-100" : "bg-gray-50 text-gray-900"}`}>
       {/* Header */}
-      <div
-        className={`fixed top-0 z-10 ${
-          darkMode ? "bg-gray-800" : "bg-white"
-        } shadow-sm border-b ${
-          darkMode ? "border-gray-700" : "border-gray-200"
-        } w-full`}
-      >
+      <div className={`fixed top-0 z-10 ${darkMode ? "bg-gray-800" : "bg-white"} shadow-sm border-b ${darkMode ? "border-gray-700" : "border-gray-200"} w-full`}>
         <div className="container mx-auto px-4 py-3 flex justify-between items-center">
           <button
             onClick={() => navigate("/problems")}
-            className={`flex items-center gap-2 px-3 py-1.5 rounded-md transition-colors ${
-              darkMode ? "hover:bg-gray-700" : "hover:bg-gray-100"
-            }`}
+            className={`flex items-center gap-2 px-3 py-1.5 rounded-md transition-colors ${darkMode ? "hover:bg-gray-700" : "hover:bg-gray-100"}`}
           >
             <FaChevronLeft className="text-blue-500" />
             <span className="font-medium">Problems</span>
           </button>
 
-          <div className="flex gap-4 ml-6">
+          <div className="flex gap-6 ml-20">
             <button
               onClick={handleRun}
               disabled={isRunning || isSubmitting}
               className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm ${
                 isRunning
-                  ? `${
-                      darkMode
-                        ? "bg-gray-600 cursor-not-allowed"
-                        : "bg-gray-300 cursor-not-allowed"
-                    }`
-                  : `${
-                      darkMode
-                        ? "bg-gray-700 hover:bg-gray-600"
-                        : "bg-gray-200 hover:bg-gray-300"
-                    } transition-colors`
+                  ? `${darkMode ? "bg-gray-600 cursor-not-allowed" : "bg-gray-300 cursor-not-allowed"}`
+                  : `${darkMode ? "bg-gray-700 hover:bg-gray-600" : "bg-gray-200 hover:bg-gray-300"} transition-colors`
               }`}
             >
-              {isRunning ? (
-                <>Running</>
-              ) : (
-                <>
-                  <FaPlay /> Run
-                </>
-              )}
+              {isRunning ? <>Running</> : <><FaPlay /> Run</>}
             </button>
             <button
               onClick={handleSubmit}
@@ -457,17 +464,30 @@ const handleSubmit = async () => {
                   : "bg-green-500 hover:bg-green-600 transition-colors"
               }`}
             >
-              {isSubmitting ? (
-                <>Submitting</>
-              ) : (
-                <>
-                  <FaCheck /> Submit
-                </>
-              )}
+              {isSubmitting ? <>Submitting</> : <><FaCheck /> Submit</>}
             </button>
           </div>
 
           <div className="flex items-center gap-4">
+               <button 
+               type="button"
+               
+              onClick={handleThemeToggle}
+              className={`
+                p-2 rounded-full focus:outline-none transition-colors duration-200
+                ${darkMode ? 
+                  'text-yellow-300 hover:bg-gray-700' : 
+                  'text-yellow-500 hover:bg-gray-100'
+                }
+              `}
+              aria-label={darkMode ? 'Switch to light mode' : 'Switch to dark mode'}
+            >
+              {darkMode ? (
+    <span><FaSun className="w-5 h-5" /></span>
+  ) : (
+    <span><FaMoon className="w-5 h-5" /></span>
+  )}
+            </button>
             <div className="flex items-center gap-2">
               <label htmlFor="language" className="text-sm font-medium">
                 Language:
@@ -498,11 +518,7 @@ const handleSubmit = async () => {
           className={`${isFullScreen ? "hidden" : ""}`}
         >
           {/* Problem Description Pane (Left) */}
-          <div
-            className={`h-full overflow-y-auto ${
-              darkMode ? "bg-gray-800" : "bg-white"
-            }`}
-          >
+          <div className={`h-full overflow-y-auto ${darkMode ? "bg-gray-800" : "bg-white"}`}>
             <div className="p-6">
               <motion.div
                 initial={{ opacity: 0, y: -20 }}
@@ -529,7 +545,6 @@ const handleSubmit = async () => {
                          {problem?.acceptance}%
                           Acceptance
                         </span>
-                        
                       </div>
                     </div>
                   </div>
@@ -539,22 +554,14 @@ const handleSubmit = async () => {
                       className="p-2 rounded-md hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
                       aria-label={isBookmarked ? "Remove bookmark" : "Add bookmark"}
                     >
-                      {isBookmarked ? (
-                        <FaBookmark className="text-yellow-500" />
-                      ) : (
-                        <FaRegBookmark />
-                      )}
+                      {isBookmarked ? <FaBookmark className="text-yellow-500" /> : <FaRegBookmark />}
                     </button>
                     <button
                       onClick={toggleLike}
                       className="p-2 rounded-md hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
                       aria-label={isLiked ? "Unlike" : "Like"}
                     >
-                      {isLiked ? (
-                        <FaThumbsUp className="text-blue-500" />
-                      ) : (
-                        <FaRegThumbsUp />
-                      )}
+                      {isLiked ? <FaThumbsUp className="text-blue-500" /> : <FaRegThumbsUp />}
                     </button>
                     <button
                       onClick={() => toast("Share feature coming soon!")}
@@ -571,16 +578,8 @@ const handleSubmit = async () => {
                     onClick={() => setActiveTab("description")}
                     className={`px-4 py-2 font-medium text-sm flex items-center gap-2 ${
                       activeTab === "description"
-                        ? `${
-                            darkMode
-                              ? "text-blue-400 border-b-2 border-blue-400"
-                              : "text-blue-600 border-b-2 border-blue-600"
-                          }`
-                        : `${
-                            darkMode
-                              ? "text-gray-400 hover:text-gray-300"
-                              : "text-gray-600 hover:text-gray-800"
-                          }`
+                        ? `${darkMode ? "text-blue-400 border-b-2 border-blue-400" : "text-blue-600 border-b-2 border-blue-600"}`
+                        : `${darkMode ? "text-gray-400 hover:text-gray-300" : "text-gray-600 hover:text-gray-800"}`
                     }`}
                   >
                     <FaFileAlt />
@@ -590,16 +589,8 @@ const handleSubmit = async () => {
                     onClick={() => setActiveTab("solutions")}
                     className={`px-4 py-2 font-medium text-sm flex items-center gap-2 ${
                       activeTab === "solutions"
-                        ? `${
-                            darkMode
-                              ? "text-blue-400 border-b-2 border-blue-400"
-                              : "text-blue-600 border-b-2 border-blue-600"
-                          }`
-                        : `${
-                            darkMode
-                              ? "text-gray-400 hover:text-gray-300"
-                              : "text-gray-600 hover:text-gray-800"
-                          }`
+                        ? `${darkMode ? "text-blue-400 border-b-2 border-blue-400" : "text-blue-600 border-b-2 border-blue-600"}`
+                        : `${darkMode ? "text-gray-400 hover:text-gray-300" : "text-gray-600 hover:text-gray-800"}`
                     }`}
                   >
                     <FaLightbulb />
@@ -609,16 +600,8 @@ const handleSubmit = async () => {
                     onClick={() => setActiveTab("submissions")}
                     className={`px-4 py-2 font-medium text-sm flex items-center gap-2 ${
                       activeTab === "submissions"
-                        ? `${
-                            darkMode
-                              ? "text-blue-400 border-b-2 border-blue-400"
-                              : "text-blue-600 border-b-2 border-blue-600"
-                          }`
-                        : `${
-                            darkMode
-                              ? "text-gray-400 hover:text-gray-300"
-                              : "text-gray-600 hover:text-gray-800"
-                          }`
+                        ? `${darkMode ? "text-blue-400 border-b-2 border-blue-400" : "text-blue-600 border-b-2 border-blue-600"}`
+                        : `${darkMode ? "text-gray-400 hover:text-gray-300" : "text-gray-600 hover:text-gray-800"}`
                     }`}
                   >
                     <FaHistory />
@@ -649,10 +632,8 @@ const handleSubmit = async () => {
                           {problem?.samples?.map((example, index) => (
                             <div
                               key={index}
-                              className={`my-4 p-4 rounded-lg ${
-                                darkMode ? "bg-gray-700" : "bg-gray-100"
-                              }`}
-                            >
+                              className={`my-4 p-4 rounded-lg ${darkMode ? "bg-gray-700" : "bg-gray-100"}`}
+      >
                               <div className="font-medium mb-3">
                                 Example {index + 1}:
                               </div>
@@ -661,7 +642,7 @@ const handleSubmit = async () => {
                                   <div className="text-sm opacity-75 mb-1">
                                     Input:
                                   </div>
-                                  <pre className="mt-1 p-3 bg-gray-200 dark:bg-gray-600 rounded text-sm">
+                                  <pre className={`mt-1 p-3 ${darkMode ? "bg-gray-600" : "bg-gray-200"} rounded text-sm`}>
                                     {example.input}
                                   </pre>
                                 </div>
@@ -669,7 +650,7 @@ const handleSubmit = async () => {
                                   <div className="text-sm opacity-75 mb-1">
                                     Output:
                                   </div>
-                                  <pre className="mt-1 p-3 bg-gray-200 dark:bg-gray-600 rounded text-sm">
+                                  <pre className={`mt-1 p-3 ${darkMode ? "bg-gray-600" : "bg-gray-200"} rounded text-sm`}>
                                     {example.output}
                                   </pre>
                                 </div>
@@ -679,7 +660,7 @@ const handleSubmit = async () => {
                                   <div className="text-sm opacity-75 mb-1">
                                     Explanation:
                                   </div>
-                                  <div className="mt-1 p-3 bg-gray-200 dark:bg-gray-600 rounded text-sm">
+                                  <div className={`mt-1 p-3 ${darkMode ? "bg-gray-600" : "bg-gray-200"} rounded text-sm`}>
                                     {example.explanation}
                                   </div>
                                 </div>
@@ -691,18 +672,14 @@ const handleSubmit = async () => {
                             Constraints
                           </h3>
                           <ul
-                            className={`p-4 rounded-lg space-y-2 text-sm ${
-                              darkMode ? "bg-gray-700" : "bg-gray-100"
-                            }`}
+                            className={`p-4 rounded-lg space-y-2 text-sm ${darkMode ? "bg-gray-700" : "bg-gray-100"}`}
                           >
-                            {problem?.constraints
-                              ?.split("\n")
-                              .map((constraint, i) => (
-                                <li key={i} className="flex items-start">
-                                  <span className="mr-2">•</span>
-                                  <span>{constraint}</span>
-                                </li>
-                              ))}
+                            {problem?.constraints?.split("\n").map((constraint, i) => (
+                              <li key={i} className="flex items-start">
+                                <span className="mr-2">•</span>
+                                <span>{constraint}</span>
+                              </li>
+                            ))}
                           </ul>
                         </>
                       )}
@@ -716,13 +693,10 @@ const handleSubmit = async () => {
                             Solutions
                           </h3>
                           <p className="mt-2 text-gray-600 dark:text-gray-400 max-w-md mx-auto">
-                            View community solutions and approaches to this
-                            problem
+                            View community solutions and approaches to this problem
                           </p>
                           <button
-                            onClick={() =>
-                              toast("Solutions feature coming soon!")
-                            }
+                            onClick={() => toast("Solutions feature coming soon!")}
                             className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
                           >
                             View Solutions
@@ -795,11 +769,7 @@ const handleSubmit = async () => {
           </div>
 
           {/* Code Editor Pane (Right) */}
-          <div
-            className={`flex flex-col h-[100%] ${
-              darkMode ? "bg-gray-900" : "bg-gray-50"
-            }`}
-          >
+          <div className={`flex flex-col h-full ${darkMode ? "bg-gray-900" : "bg-gray-50"}`}>
             {/* Editor Toolbar */}
             <div
               className={`flex justify-between items-center p-2 border-b ${
@@ -879,74 +849,93 @@ const handleSubmit = async () => {
               />
             </div>
 
+            {/* Result Panel */}
+            {(showResultPanel || isRunning || isSubmitting) && (
+              <div 
+                className={`border-t ${darkMode ? "border-gray-700 bg-gray-800" : "border-gray-200 bg-white"} relative`}
+                style={{
+                  height: `${panelHeight}px`,
+                  overflow: 'hidden',
+                  position: 'relative'
+                }}
+              >
+                {/* Drag Handle */}
+                <div 
+                  className="absolute top-0 left-0 right-0 h-2 cursor-row-resize bg-transparent hover:bg-blue-500 hover:bg-opacity-20 transition-colors z-10"
+                  onMouseDown={handleDragStart}
+                  onTouchStart={handleDragStart}
+                ></div>
 
+                {/* Panel Header */}
+                <div className="flex items-center justify-between border-b border-gray-200 dark:border-gray-700 pt-2">
+                  <div className="flex">
+                    <PanelTabButton
+                      active={consoleTab === "run"}
+                      onClick={() => setConsoleTab("run")}
+                      icon={<FaTerminal />}
+                      darkMode={darkMode}
+                    >
+                      Run Result
+                    </PanelTabButton>
+                    <PanelTabButton
+                      active={consoleTab === "submit"}
+                      onClick={() => setConsoleTab("submit")}
+                      icon={<FaTerminal />}
+                      darkMode={darkMode}
+                    >
+                      Submission Result
+                    </PanelTabButton>
+                  </div>
+                  <button
+                    onClick={() => setShowResultPanel(false)}
+                    className="p-2 mr-2 rounded-md hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                    title="Close panel"
+                  >
+                    <FaTimes className="text-gray-500 dark:text-gray-400" />
+                  </button>
+                </div>
 
-{/* Modified result panel section */}
-{(showResultPanel || isRunning || isSubmitting) && (
-  <div className={`border-t ${darkMode ? "border-gray-700 bg-gray-800" : "border-gray-200 bg-white"}`}>
-    {/* Panel Header */}
-    <div className="flex items-center justify-between border-b border-gray-200 dark:border-gray-700">
-      <div className="flex">
-        <PanelTabButton
-          active={consoleTab === "run"}
-          onClick={() => setConsoleTab("run")}
-          icon={<FaTerminal />}
-          darkMode={darkMode}
-        >
-          Run Result
-        </PanelTabButton>
-        <PanelTabButton
-          active={consoleTab === "submit"}
-          onClick={() => setConsoleTab("submit")}
-          icon={<FaTerminal />}
-          darkMode={darkMode}
-        >
-          Submission Result
-        </PanelTabButton>
-      </div>
-      <button
-        onClick={() => setShowResultPanel(false)}
-        className="p-2 mr-2 rounded-md hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
-        title="Close panel"
-      >
-        <FaTimes className="text-gray-500 dark:text-gray-400" />
-      </button>
-    </div>
-
-    {/* Panel Content */}
-    <div className="p-4 h-full overflow-y-auto">
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={consoleTab}
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -10 }}
-          transition={{ duration: 0.2 }}
-          className="h-full"
-        >
-          {consoleTab === "run" ? (
-            <RunResultView 
-              runResult={runResult}
-              isRunning={isRunning}
-              darkMode={darkMode}
-              selectedTestCase={selectedTestCase}
-              setSelectedTestCase={setSelectedTestCase}
-            />
-          ) : (
-            <SubmitResultView 
-              submitResult={submitResult}
-              isSubmitting={isSubmitting}
-              darkMode={darkMode}
-              language={language}
-              problemDescription = {problem.description}
-              code = {code}
-            />
-          )}
-        </motion.div>
-      </AnimatePresence>
-    </div>
-  </div>
-)}
+                {/* Scrollable Content Area */}
+                <div 
+                  className="p-4 overflow-y-auto" 
+                  style={{
+                    height: 'calc(100% - 45px)',
+                  }}
+                >
+                  <AnimatePresence mode="wait">
+                    <motion.div
+                      key={consoleTab}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      transition={{ duration: 0.2 }}
+                      className="h-full"
+                    >
+                      {consoleTab === "run" ? (
+                        <RunResultView 
+                          runResult={runResult}
+                          isRunning={isRunning}
+                          darkMode={darkMode}
+                          selectedTestCase={selectedTestCase}
+                          setSelectedTestCase={setSelectedTestCase}
+                        />
+                      ) : (
+                        <SubmitResultView 
+                          submitResult={submitResult}
+                          isSubmitting={isSubmitting}
+                          darkMode={darkMode}
+                          language={language}
+                          problemDescription={problem.description}
+                          code={code}
+                          showReviewModal={showReviewModal}
+                          setShowReviewModal={setShowReviewModal}
+                        />
+                      )}
+                    </motion.div>
+                  </AnimatePresence>
+                </div>
+              </div>
+            )}
           </div>
         </SplitPane>
 

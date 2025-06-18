@@ -1,12 +1,11 @@
-// shared/config/Database.js
 
 const mongoose = require('mongoose');
-// require('dotenv').config();
+require('dotenv').config();
 
 const connectDB = async () => {
   const MONGO_URI = process.env.MONGODB_URL;
   if (!MONGO_URI) {
-    console.error('MongoDB connection string (MONGO_URI) is not set in environment variables.');
+    console.error(`MongoDB connection string ${MONGO_URI} is not set in environment variables.`);
     process.exit(1);
   }
 

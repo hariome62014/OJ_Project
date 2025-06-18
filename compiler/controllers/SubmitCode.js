@@ -1,4 +1,10 @@
+
+
+
+
 const path = require('path');
+const crypto = require('crypto');
+const pLimit = require('p-limit');
 const Problem = require('../shared/models/Problem');
 const TestCase = require('../shared/models/TestCase');
 const Submission = require('../shared/models/Submission');
@@ -6,6 +12,7 @@ const User = require('../shared/models/User');
 const { generateFile, cleanupFile } = require('../services/fileService');
 const { executeCpp } = require('../services/codeExecutionService');
 
+// Constants
 const ERROR_PRIORITY = [
   'compilation',
   'segmentation',
@@ -22,6 +29,13 @@ const STATUS_MAP = {
   runtime: "Runtime Error"
 };
 
+
+
+// Configuration
+const CONCURRENCY_LIMIT = 4; // Optimal for most systems
+const concurrencyLimiter = pLimit(CONCURRENCY_LIMIT);
+
+// Helper Functions
 function determineFinalStatus(errorTypes, allPassed) {
   for (const type of ERROR_PRIORITY) {
     if (errorTypes.has(type)) {
@@ -31,15 +45,36 @@ function determineFinalStatus(errorTypes, allPassed) {
   return allPassed ? 'Accepted' : 'Wrong Answer';
 }
 
+function quickNormalize(str) {
+  if (!str) return '';
+  let result = '';
+  for (let i = 0; i < str.length; i++) {
+    if (str[i] === '\r' && str[i+1] === '\n') {
+      result += '\n';
+      i++;
+    } else {
+      result += str[i];
+    }
+  }
+  return result.trim();
+}
+
+function handleExecutionError(execError) {
+  return {
+    success: false,
+    errorType: 'system',
+    error: execError.message,
+    output: '',
+    executionTime: 0,
+    memoryUsage: 0
+  };
+}
 
 exports.submitSolution = async (req, res) => {
-
-    // console.log("User",req.user);
-
   const { problemId, code, language = 'cpp', Sub_type } = req.body;
+  // console.log("User,",req.user)
   const userId = req.user.id;
-
-  
+  const isRunMode = Sub_type === 'run';
 
   try {
     // Validate input
@@ -56,8 +91,11 @@ exports.submitSolution = async (req, res) => {
       });
     }
 
-    // Check if problem exists
-    const problem = await Problem.findById(problemId).populate('samples');
+    // Check if problem exists with only necessary fields
+    const problem = await Problem.findById(problemId)
+      .select('timeLimit memoryLimit samples title')
+      .populate('samples', 'input output');
+
     if (!problem) {
       return res.status(404).json({
         success: false,
@@ -67,8 +105,6 @@ exports.submitSolution = async (req, res) => {
 
     // Select test cases
     let testCases = [];
-    let isRunMode = Sub_type === 'run';
-
     if (isRunMode) {
       if (!problem.samples || problem.samples.length === 0) {
         return res.status(404).json({
@@ -82,7 +118,7 @@ exports.submitSolution = async (req, res) => {
         isPublic: true
       }));
     } else {
-      testCases = await TestCase.find({ problemId });
+      testCases = await TestCase.find({ problemId }).select('input expectedOutput isPublic');
       if (testCases.length === 0) {
         return res.status(404).json({
           success: false,
@@ -91,59 +127,58 @@ exports.submitSolution = async (req, res) => {
       }
     }
 
-    // Generate code file
+    // Generate code file with hash-based filename
+    const codeHash = crypto.createHash('sha256').update(code).digest('hex');
     const codesDir = path.join(__dirname, '../../codes');
-    const filePath = await generateFile(codesDir, language, code);
+    const filePath = await generateFile(codesDir, language, code, codeHash);
 
-    // Prepare results array
-    const results = [];
-    let allTestCasesPassed = true;
-    let totalExecutionTime = 0;
-    let maxExecutionTime = 0;
-    let totalMemoryUsage = 0;
-    let maxMemoryUsage = 0;
-    const errorTypes = new Set();
-
-    // Execute code against each test case
-    for (const testCase of testCases) {
-      let executionResult;
-      try {
-        executionResult = await executeCpp(
+    // Execute all test cases in parallel with concurrency limit
+    const executionPromises = testCases.map(testCase => 
+      concurrencyLimiter(() => 
+        executeCpp(
           filePath,
           testCase.input,
           problem.timeLimit,
-          problem.memoryLimit
-        );
-      } catch (execError) {
-        executionResult = {
-          success: false,
-          errorType: 'system',
-          error: execError.message,
-          output: '',
-          executionTime: 0,
-          memoryUsage: 0
-        };
-      }
+          problem.memoryLimit,
+          codeHash
+        ).catch(handleExecutionError)
+      )
+    );
 
-      // Normalize outputs for comparison
-      const normalizedExpected = (testCase.expectedOutput || '').trim().replace(/\r\n/g, '\n');
-      const normalizedActual = (executionResult.output || '').trim().replace(/\r\n/g, '\n');
+    const executionResults = await Promise.all(executionPromises);
 
+    // Process results
+    const results = [];
+    let allTestCasesPassed = true;
+    const errorTypes = new Set();
+    const stats = {
+      totalExecutionTime: 0,
+      maxExecutionTime: 0,
+      totalMemoryUsage: 0,
+      maxMemoryUsage: 0
+    };
+
+    executionResults.forEach((executionResult, index) => {
+      const testCase = testCases[index];
+      const normalizedExpected = quickNormalize(testCase.expectedOutput);
+      const normalizedActual = quickNormalize(executionResult.output);
       const passed = executionResult.success && (normalizedExpected === normalizedActual);
 
       if (!passed) allTestCasesPassed = false;
-      if (!executionResult.success && executionResult.errorType)
+      if (!executionResult.success && executionResult.errorType) {
         errorTypes.add(executionResult.errorType);
+      }
 
-      totalExecutionTime += executionResult.executionTime || 0;
-      maxExecutionTime = Math.max(maxExecutionTime, executionResult.executionTime || 0);
-      totalMemoryUsage += executionResult.memoryUsage || 0;
-      maxMemoryUsage = Math.max(maxMemoryUsage, executionResult.memoryUsage || 0);
+      // Update statistics
+      stats.totalExecutionTime += executionResult.executionTime || 0;
+      stats.maxExecutionTime = Math.max(stats.maxExecutionTime, executionResult.executionTime || 0);
+      stats.totalMemoryUsage += executionResult.memoryUsage || 0;
+      stats.maxMemoryUsage = Math.max(stats.maxMemoryUsage, executionResult.memoryUsage || 0);
 
       results.push({
-        input: testCase.input,
-        expectedOutput: testCase.expectedOutput,
-        actualOutput: executionResult.output,
+        input: isRunMode ? testCase.input : undefined,
+        expectedOutput: isRunMode ? testCase.expectedOutput : undefined,
+        actualOutput: isRunMode ? executionResult.output : (passed ? 'Correct' : 'Incorrect'),
         executionTime: executionResult.executionTime,
         memoryUsage: executionResult.memoryUsage,
         isPublic: testCase.isPublic,
@@ -151,7 +186,9 @@ exports.submitSolution = async (req, res) => {
         error: executionResult.error || null,
         errorType: executionResult.errorType || null
       });
-    }
+    });
+
+    // console.log("Results:::",results)
 
     // Clean up the generated file
     await cleanupFile(filePath);
@@ -159,89 +196,110 @@ exports.submitSolution = async (req, res) => {
     // Determine the submission status
     const status = determineFinalStatus(errorTypes, allTestCasesPassed);
 
-    // Prepare response
-    const response = {
-      success: true,
-      problemId,
-      allTestCasesPassed,
-      totalTestCases: testCases.length,
-      passedTestCases: results.filter((r) => r.passed).length,
-      maxExecutionTime,
-      maxMemoryUsage,
-      results,
-      status,
-      isRunMode
-    };
+    const user = await User.findById(userId);
 
-    // Only save to database if this is a submission (not a run)
+// Check if the problem was already solved
+const alreadySolved = user.solvedProblems.includes(problemId);
+
+// Prepare response
+const response = {
+  success: true,
+  problemId,
+  problemTitle: problem.title,
+  allTestCasesPassed,
+  totalTestCases: testCases.length,
+  passedTestCases: results.filter(r => r.passed).length,
+  avgExecutionTime: stats.totalExecutionTime / testCases.length,
+  maxExecutionTime: stats.maxExecutionTime,
+  avgMemoryUsage: stats.totalMemoryUsage / testCases.length,
+  maxMemoryUsage: stats.maxMemoryUsage,
+  results: isRunMode ? results : results.map(r => ({
+    actualOutput: r.actualOutput,
+    executionTime: r.executionTime,
+    memoryUsage: r.memoryUsage,
+    passed: r.passed,
+    error: r.error,
+    errorType: r.errorType
+  })),
+  status,
+  isRunMode,
+  newlySolved: allTestCasesPassed && !alreadySolved ? problemId : null, // Only send problemId if newly solved
+};
+
+    // Database operations for submissions only
     if (!isRunMode) {
-      const submissionResults = results.map(result => ({
-        testCaseId: testCases.find(tc => tc.input === result.input)?._id || null,
-        output: result.actualOutput,
-        runtime: result.executionTime,
-        memory: result.memoryUsage,
-        passed: result.passed,
-        error: result.error,
-        errorType: result.errorType
-      }));
+      const session = await Problem.startSession();
+      session.startTransaction();
 
-      // Create new submission
-      const submission = new Submission({
-        problemId,
-        userId,
-        code,
-        language,
-        status,
-        results: submissionResults,
-        overallRuntime: maxExecutionTime,  // Using max instead of total
-        overallMemory: maxMemoryUsage,    // Using max instead of total
-        score: (response.passedTestCases / response.totalTestCases) * 100
-      });
+      try {
+        // Create submission
+        const submission = new Submission({
+          problemId,
+          userId,
+          code,
+          language,
+          status,
+          results: results.map(result => ({
+            testCaseId: testCases.find(tc => tc.input === result.input)?._id || null,
+            output: result.actualOutput,
+            runtime: result.executionTime,
+            memory: result.memoryUsage,
+            passed: result.passed,
+            error: result.error,
+            errorType: result.errorType
+          })),
+          overallRuntime: stats.maxExecutionTime,
+          overallMemory: stats.maxMemoryUsage,
+          score: (response.passedTestCases / response.totalTestCases) * 100
+        });
 
-      await submission.save();
+        await submission.save({ session });
 
-      // Update problem statistics
-      const updateData = {
-        $inc: { totalSubmissions: 1 }
-      };
+        // Update problem statistics
+        const updatedProblem = await Problem.findByIdAndUpdate(
+          problemId,
+          {
+            $inc: {
+              totalSubmissions: 1,
+              ...(status === 'Accepted' && { correctSubmissions: 1 })
+            }
+          },
+          { new: true, session }
+        );
 
-      if (status === 'Accepted') {
-        updateData.$inc.correctSubmissions = 1;
+        // Calculate acceptance rate
+        if (updatedProblem.totalSubmissions > 0) {
+          updatedProblem.acceptance = Math.round(
+            (updatedProblem.correctSubmissions / updatedProblem.totalSubmissions) * 100
+          );
+          await updatedProblem.save({ session });
+        }
 
         // Update user's solved problems if this is their first correct submission
-        const user = await User.findById(userId);
-        if (!user.solvedProblems.includes(problemId)) {
+        if (status === 'Accepted') {
           await User.findByIdAndUpdate(
             userId,
-            { $addToSet: { solvedProblems: problemId } }
+            { $addToSet: { solvedProblems: problemId } },
+            { session }
           );
         }
+
+        await session.commitTransaction();
+        
+        // Add submission details to response
+        response.submissionId = submission._id;
+        response.acceptanceRate = updatedProblem.acceptance;
+      } catch (error) {
+        await session.abortTransaction();
+        throw error;
+      } finally {
+        session.endSession();
       }
-
-      // First update the submission counts
-      const updatedProblem = await Problem.findByIdAndUpdate(
-        problemId,
-        updateData,
-        { new: true } // Return the updated document
-      );
-
-      // Then calculate and update the acceptance rate
-      if (updatedProblem.totalSubmissions > 0) {
-        updatedProblem.acceptance = Math.round(
-          (updatedProblem.correctSubmissions / updatedProblem.totalSubmissions) * 100
-        );
-        await updatedProblem.save();
-      }
-
-      // Add submission ID to the response
-      response.submissionId = submission._id;
-      // Also include acceptance rate in the response
-      response.acceptanceRate = updatedProblem.acceptance;
     }
 
     res.json(response);
   } catch (error) {
-    console.error('Error in submitSolution:', error);
+    // console.error('Error in submitSolution:', error);
     res.status(500).json({
       success: false,
       error: error.message || 'An error occurred while processing your submission.',

@@ -147,7 +147,7 @@ const TestCaseModal = ({
       
       onClose();
     } catch (error) {
-      console.error("Error saving test cases:", error);
+      // console.error("Error saving test cases:", error);
       toast.error("Failed to save test cases");
     }
   };

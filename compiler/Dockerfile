@@ -19,3 +19,5 @@ EXPOSE 8000
 ENV NODE_ENV=production
 
 CMD ["node", "index.js"]
+
+# command to build the image: docker build -f compiler/Dockerfile -t oj-backend .

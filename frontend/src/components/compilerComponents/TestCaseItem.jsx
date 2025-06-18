@@ -5,7 +5,8 @@ import { FaExclamationTriangle } from 'react-icons/fa';
 const TestCaseItem = ({ testCase, index, isSelected, onSelect, darkMode }) => {
   // Determine status based on error type
   const getStatus = () => {
-    if (testCase.passed) return "success";
+    if (testCase.passed) return "Accepted";
+    if(!testCase.passed) return "Wrong Answer";
     if (testCase.errorType === 'timeout') return "timeout";
     if (testCase.errorType === 'runtime') return "runtime";
     if (testCase.errorType === 'compilation') return "compilation";
@@ -27,11 +28,11 @@ const TestCaseItem = ({ testCase, index, isSelected, onSelect, darkMode }) => {
             Test Case {index + 1}
           </span>
         </div>
-        <span className={`text-xs px-2 py-1 rounded-full ${
-          darkMode ? "bg-gray-600 text-gray-300" : "bg-gray-200 text-gray-700"
-        }`}>
-          {testCase.executionTime || "N/A"} ms
-        </span>
+      <span className={`text-xs px-2 py-1 rounded-full ${
+  darkMode ? "bg-gray-600 text-gray-300" : "bg-gray-200 text-gray-700"
+}`}>
+  {testCase.executionTime ? `${Number(testCase.executionTime).toFixed(2)} ms` : "N/A"}
+</span>
       </div>
 
       {isSelected && (
@@ -62,7 +63,7 @@ const TestCaseItem = ({ testCase, index, isSelected, onSelect, darkMode }) => {
             <CodeBlock 
               label="Your Output" 
               content={testCase.actualOutput} 
-              status={testCase.passed ? "success" : "error"}
+              status={testCase.passed ? "Accepted" : "error"}
               darkMode={darkMode}
             />
           )}

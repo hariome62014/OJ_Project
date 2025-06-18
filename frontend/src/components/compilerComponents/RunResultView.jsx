@@ -48,11 +48,11 @@ const RunResultView = ({ runResult, isRunning, darkMode, selectedTestCase, setSe
                 {runResult.testCases.find(tc => tc.error).error}
               </pre>
             )}
-            <p className={`mt-2 text-sm ${
+            {/* <p className={`mt-2 text-sm ${
               darkMode ? "text-gray-400" : "text-gray-600"
             }`}>
               {runResult.output}
-            </p>
+            </p> */}
           </div>
         </div>
       </div>
@@ -77,7 +77,7 @@ const RunResultView = ({ runResult, isRunning, darkMode, selectedTestCase, setSe
             Test Cases ({runResult.passed}/{runResult.total} passed)
           </h4>
           {runResult.status === "Error" && (
-            <div className={`mt-2 text-sm ${darkMode ? "text-red-400" : "text-red-600"}`}>
+            <div className={`mt-20 text-sm ${darkMode ? "text-red-400" : "text-red-600"}`}>
               {runResult.output}
             </div>
           )}

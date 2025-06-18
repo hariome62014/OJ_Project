@@ -27,17 +27,14 @@ import LearnerHomePage from "./pages/LearnerHomePage";
 import ProblemListPage from "./pages/ProblemListPage";
 import ProblemPage from "./pages/ProblemWithCompilerPage";
 import CreateProblemPage from "./components/ProblemComponents/CreateProblem";
-// import ForgotPasswordPage from './pages/auth/ForgotPasswordPage';
-
-// // Error Pages
-// import NotFoundPage from './pages/errors/NotFoundPage';
-// import UnauthorizedPage from './pages/errors/UnauthorizedPage';
+import ForgotPasswordPage from './pages/ForgotPasswordpage'
+import ResetPassword from "./pages/ResetPassword";
+import Contests from "./pages/ContestPage";
+import Leaderboard from "./pages/LeaderBoardPage";
 
 const App = () => {
   const darkMode = useSelector((state) => state.theme.darkMode);
   const user = useSelector((state) => state.profile.user);
-
-  // console.log("User on App.jsx",user);
 
   const dispatch = useDispatch();
 
@@ -72,32 +69,38 @@ const App = () => {
     return user ? children : <Navigate to="/login" />;
   };
 
+  // Auth route component (for login/register when already authenticated)
+  const AuthRoute = ({ children }) => {
+    return user ? <Navigate to={user.role === "admin" ? "/admin-profile" : (user.role==="user"?"/profile":"/")} /> : children;
+  };
+
   return (
-    <div className="app-container flex flex-col min-h-screen">
-      <Navbar />
-      {/* <div className="main-content flex flex-1">
-              <Sidebar />
-              <div className="page-content flex-1 p-4"> */}
-      <Routes>
-        {/* Public Routes */}
-        <Route
-          path="/"
-          element={
-            user ? (
-              user.role === "admin" ? (
-                <AdminHomePage />
-              ) : (
-                <LearnerHomePage />
-              )
-            ) : (
-              <HomePage />
-            )
-          }
-        />
-
-        <Route path="/problems" element={<ProblemListPage />} />
-
+    <ThemeProvider theme={theme}>
+      <div className="app-container flex flex-col min-h-screen">
+        <Navbar />
        
+        <Routes>
+          {/* Public Routes */}
+          <Route
+            path="/"
+            element={
+              user ? (
+                user.role === "admin" ? (
+                  <AdminHomePage />
+                ) : (
+                  <LearnerHomePage />
+                )
+              ) : (
+                <HomePage />
+              )
+            }
+          />
+
+          <Route path="/problems" element={<ProblemListPage />} />
+          <Route path="/contests" element={<Contests />} />
+          <Route path="/leaderboard" element={<Leaderboard />} />
+
+
           <Route
             path="/problems/:problemId"
             element={
@@ -106,72 +109,85 @@ const App = () => {
               </ProtectedRoute>
             }
           />
-      
 
-        <Route path="/admin-problem-list" element={<AdminProblemsPage />} />
-        {/* <Route path="/problems/:id" element={<ProblemDetailPage />} />
-                  <Route path="/contests" element={<ContestsPage />} />
-                  <Route path="/contests/:id" element={<ContestDetailPage />} />
-                  <Route path="/leaderboard" element={<LeaderboardPage />} /> 
-                   */}
-        {/* Auth Routes */}
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/register" element={<RegisterPage />} />
-        <Route path="/verify-otp" element={<OtpVerificationPage />} />
-        {/* <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-                  <Route path="/reset-password/:token" element={<ResetPasswordPage />} /> */}
+          <Route path="/admin-problem-list" element={<AdminProblemsPage />} />
+         
+          {/* Auth Routes */}
+          <Route 
+            path="/login" 
+            element={
+              <AuthRoute>
+                <LoginPage />
+              </AuthRoute>
+            } 
+          />
+          <Route 
+            path="/register" 
+            element={
+              <AuthRoute>
+                <RegisterPage />
+              </AuthRoute>
+            } 
+          />
+          <Route path="/verify-otp" element={
+            <OtpVerificationPage />} />
 
-        {/* Protected Routes */}
-        {/* <Route path="/submit/:problemId" element={
-                    <ProtectedRoute>
-                      <SubmitSolutionPage />
-                    </ProtectedRoute>
-                  } />
-                  <Route path="/submissions" element={
-                    <ProtectedRoute>
-                      <SubmissionsPage />
-                    </ProtectedRoute>
-                  } />
-                  <Route path="/submissions/:id" element={
-                    <ProtectedRoute>
-                      <SubmissionDetailPage />
-                    </ProtectedRoute>
-                  } />*/}
-        <Route
-          path="/profile"
-          element={
-            <ProtectedRoute>
-              <ProfilePage />
-            </ProtectedRoute>
-          }
-        />
+          <Route path='/forgot-password' element={
+             <AuthRoute>
+            <ForgotPasswordPage/>
+            </AuthRoute>
+          }/>
 
-        <Route
-          path="/admin-profile"
-          element={
-            <ProtectedRoute>
-              {user && user.role === "admin" && <AdminProfilePage />}
-            </ProtectedRoute>
-          }
-        />
+          
+           <Route path="/update-password/:id" element={
+             <AuthRoute>
+            <ResetPassword />
+            </AuthRoute>
+          } />
 
-        <Route
-          path="/admin/create-problem"
-          element={
-            <ProtectedRoute>
-              {user && user.role === "admin" && <CreateProblemPage />}
-            </ProtectedRoute>
-          }
-        />
+          <Route
+            path="/profile"
+            element={
+              <ProtectedRoute>
+                <ProfilePage />
+              </ProtectedRoute>
+            }
+          />
 
-        {/* Error Routes */}
-        {/* <Route path="/unauthorized" element={<UnauthorizedPage />} />*/}
-        {/* <Route path="*" element={<NotFoundPage />} /> */}
-      </Routes>
-      {/* </div>
-            </div> */}
-      {/* <Footer /> */}
-    </div>
+          <Route
+            path="/admin-profile"
+            element={
+              <ProtectedRoute>
+                {user && user.role === "admin" ? <AdminProfilePage /> : <Navigate to="/" />}
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/admin/create-problem"
+            element={
+              <ProtectedRoute>
+                {user && user.role === "admin" ? <CreateProblemPage /> : <Navigate to="/" />}
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Admin home route */}
+          <Route
+            path="/admin"
+            element={
+              <ProtectedRoute>
+                {user && user.role === "admin" ? <AdminHomePage /> : <Navigate to="/" />}
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Catch-all route */}
+          <Route path="*" element={<Navigate to="/" />} />
+        </Routes>
+       
+      </div>
+    </ThemeProvider>
   );
 };
 

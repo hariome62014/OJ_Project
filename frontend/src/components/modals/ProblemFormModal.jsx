@@ -131,7 +131,7 @@ const ProblemFormModal = ({
       toast.success("Problem updated successfully!");
       onSave && onSave(result); // Call the onSave callback if provided
     } catch (err) {
-      console.error("Update failed:", err);
+      // console.error("Update failed:", err);
       toast.error(err.message || "Problem update failed");
     }
   };

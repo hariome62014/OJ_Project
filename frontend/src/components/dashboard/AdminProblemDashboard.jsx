@@ -126,7 +126,7 @@ const AdminPage = () => {
         })
         .catch(err => {
           toast.error('Failed to delete problem');
-          console.error(err);
+          // console.error(err);
         });
     }
 

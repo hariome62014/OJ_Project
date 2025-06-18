@@ -5,6 +5,7 @@ import ThemeSlice from "../slices/ThemeSlice";
 import profileSlice from '../slices/ProfileSlice'
 import problemSlice from '../slices/ProblemSlice'
 import submissionSlice from '../slices/SubmissionSlice'
+import userNameSlice from '../slices/UserNameSlice'
 
 const rootReducer=combineReducers({
     auth:authReducer,
@@ -12,7 +13,8 @@ const rootReducer=combineReducers({
     loadingBar: loadingBarReducer,
     profile:profileSlice,
     problem:problemSlice,
-    submission:submissionSlice
+    submission:submissionSlice,
+    username:userNameSlice
    
     
 })

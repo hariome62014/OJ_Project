@@ -50,7 +50,7 @@ const ProblemsPage = () => {
 
   // Transform the data from the API format to the format your UI expects
  const transformProblemData = (problem) => {
-  // console.log("problem.solved", problem);
+  // console.log("problem.solved", problem.solved);
   return {
     id: problem._id,
     title: problem.title,
@@ -58,7 +58,7 @@ const ProblemsPage = () => {
     category: problem.tags?.join(', ') || 'Unknown', // Show all tags joined by comma
     tags: problem.tags || [], // Keep original tags array if needed
     acceptance: problem.acceptance || "NA", // Calculate this from your data
-    solved: problem.solved, // Get this from user data
+    solved:  user?.solvedProblems.includes(problem._id) || null, // Get this from user data
     premium: !problem.isPublished,
     frequency: 0.5 // Calculate this based on usage data
   };
@@ -113,7 +113,7 @@ const ProblemsPage = () => {
     dispatch(setPageSize(Number(e.target.value)));
   };
 
-  if (loading === 'loading' && !problems.length) {
+  if (loading === 'loading' && !problem.length) {
     return (
       <div className={`min-h-screen ${darkMode ? 'bg-gray-900 text-gray-100' : 'bg-gray-50 text-gray-900'} mt-16 flex items-center justify-center`}>
         <div className="text-center">
@@ -343,7 +343,7 @@ const ProblemsPage = () => {
     {problem.tags?.map(tag => (
       <span 
         key={tag} 
-        className="px-2 py-1 text-xs rounded-full bg-gray-200 dark:bg-gray-700"
+        className={`px-2 py-1 text-sm rounded-full ${darkMode ? "bg-gray-700" : "bg-gray-200"} `}
       >
         {tag}
       </span>

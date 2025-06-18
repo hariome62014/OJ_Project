@@ -7,6 +7,7 @@ const {
   login,
   signup,
   sendotp,
+  checkUsernameUnique
 //   changePassword,
 } = require("../controllers/Auth")
 
@@ -32,6 +33,9 @@ router.post("/reset-password-token", resetPasswordToken)
 
 // Route for resetting user's password after verification
 router.post("/reset-password", resetPassword)
+
+router.post('/check-username', checkUsernameUnique);
+
 
 
 module.exports = router;
